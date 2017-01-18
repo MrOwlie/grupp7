@@ -1,0 +1,2 @@
+mongodb v. 3.4.1
+nodejs v. 7.4.0

@@ -1,0 +1,12 @@
+{
+	"database": {
+		"connection":{
+			"url": "mongodb://localhost:27017/myproject"
+		}
+	},
+	"hyperledger":{
+		"connection": {
+			"url": "ip-address"
+		}
+	}
+}

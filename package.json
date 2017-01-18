@@ -1,0 +1,14 @@
+{
+  "name": "hyperledger",
+  "version": "1.0.0",
+  "description": "d0020e project, blockchain for iot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^2.2.21"
+  }
+}
