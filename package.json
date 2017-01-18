@@ -10,5 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "mongodb": "^2.2.21"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrOwlie/grupp7.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MrOwlie/grupp7/issues"
+  },
+  "homepage": "https://github.com/MrOwlie/grupp7#readme"
 }

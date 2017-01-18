@@ -1,4 +1,5 @@
 var http = require('http');
+//var hfc = require('hfc');
 
 var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
@@ -17,7 +18,7 @@ var MongoClient = require('mongodb').MongoClient
 var server = http.createServer(function(req, res) {
 	
   res.writeHead(200);
-  res.end('Hello Http');
+  res.end(process.env.PEER_ADDRESS);
   console.log("hej");
 });
 server.listen(8080);
