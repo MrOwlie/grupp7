@@ -11,19 +11,18 @@ var MongoClient = require('mongodb').MongoClient
 	MongoClient.connect(url, function(err, db) {
 	  assert.equal(null, err);
 	  console.log("Connected successfully to database");
-
 	  db.close();
 	});
-	
+
 startupHyperledger();
 
 var server = http.createServer(function(req, res) {
-	
+
   res.writeHead(200);
   res.end("whatever");
-  
 
-  
+
+
 });
 server.listen(8080);
 
@@ -45,7 +44,7 @@ console.log("Successfully created chain");
 // either be on a shared file system shared by all members of the cluster
 // or you must implement you own KeyValStore which all members of the
 // cluster can share.
-chain.setKeyValStore( hfc.newFileKeyValStore('/skola/d0020e/tmp/keyValStore') );
+chain.setKeyValStore( hfc.newFileKeyValStore(__dirname + '/tmp/keyValStore') );
 console.log("Successfully set KeyValStore");
 
 // Set the URL for membership services
@@ -67,8 +66,18 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-   
+
    // Now begin listening for web app requests
-   listenForUserRequests();
+   //listenForUserRequests();
 });
+}
+
+function insertDB(txHash, txData){
+  db.collection('myproject').insert([
+    {
+      '_id' : txHash,
+      'data' : txData
+    }
+  ]);
+  db.close();
 }
