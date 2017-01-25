@@ -1,11 +1,15 @@
-var http = require('http');
+// library for handling sensors
+var sensor = require('./sensor');
+var express = require('express');
+var app = express()
 var hfc = require('hfc');
+var chain;
 
 var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
 	// Connection URL
-	var url = 'mongodb://localhost:27017/myproject';
+	var url = process.env.DATABASE_URL;
 
 	// Use connect method to connect to the server
 	MongoClient.connect(url, function(err, db) {
@@ -17,44 +21,62 @@ var MongoClient = require('mongodb').MongoClient
 	
 startupHyperledger();
 
-var server = http.createServer(function(req, res) {
-	
-  res.writeHead(200);
-  res.end("whatever");
-  
-
-  
+app.get('/', function(req, res){
+	res.send('Main page');
 });
-server.listen(8080);
+
+app.get('/new', function(req, res){
+	res.send('new sensor');
+	sensor.newSensor(chain, "test");
+	// chain.getMember("test", function(err, member){
+		// if(err)
+			// return console.log("Could not find member");
+		// console.log(member.isRegistered());
+	// });
+});
+
+app.listen(8080, function(){
+	console.log('page requested');
+})
 
 function startupHyperledger(){
-	  //get the addresses from the docker-compose environment
-var PEER_ADDRESS         = "localhost:7050"; //hämta från config file
-var MEMBERSRVC_ADDRESS   = "localhost:7054"; //hämta från config file
+console.log(" **** starting HFC sample ****");
 
-// Create a client chain.
-// The name can be anything as it is only used internally.
-var chain = hfc.newChain("targetChain");
-console.log("Successfully created chain");
 
-// Configure the KeyValStore which is used to store sensitive keys
-// as so it is important to secure this storage.
-// The FileKeyValStore is a simple file-based KeyValStore, but you
-// can easily implement your own to store whereever you want.
-// To work correctly in a cluster, the file-based KeyValStore must
-// either be on a shared file system shared by all members of the cluster
-// or you must implement you own KeyValStore which all members of the
-// cluster can share.
-chain.setKeyValStore( hfc.newFileKeyValStore('/skola/d0020e/tmp/keyValStore') );
-console.log("Successfully set KeyValStore");
+// get the addresses from the docker-compose environment
+var PEER_ADDRESS         = process.env.CORE_PEER_ADDRESS;
+var MEMBERSRVC_ADDRESS   = process.env.MEMBERSRVC_ADDRESS;
 
-// Set the URL for membership services
+var chain, chaincodeID;
+
+// Create a chain object used to interact with the chain.
+// You can name it anything you want as it is only used by client.
+chain = hfc.newChain("mychain");
+// Initialize the place to store sensitive private key information
+chain.setKeyValStore( hfc.newFileKeyValStore('/tmp/keyValStore') );
+// Set the URL to membership services and to the peer
+console.log("member services address ="+MEMBERSRVC_ADDRESS);
+console.log("peer address ="+PEER_ADDRESS);
 chain.setMemberServicesUrl("grpc://"+MEMBERSRVC_ADDRESS);
-
-// Add at least one peer's URL.  If you add multiple peers, it will failover
-// to the 2nd if the 1st fails, to the 3rd if both the 1st and 2nd fails, etc.
 chain.addPeer("grpc://"+PEER_ADDRESS);
-console.log("Successfully set HyperLedger connections");
+
+// The following is required when the peer is started in dev mode
+// (i.e. with the '--peer-chaincodedev' option)
+var mode =  process.env['DEPLOY_MODE'];
+console.log("DEPLOY_MODE=" + mode);
+if (mode === 'dev') {
+    chain.setDevMode(true);
+    //Deploy will not take long as the chain should already be running
+    chain.setDeployWaitTime(10);
+} else {
+    chain.setDevMode(false);
+    //Deploy will take much longer in network mode
+    chain.setDeployWaitTime(120);
+}
+
+
+chain.setInvokeWaitTime(10);
+
 
  // Enroll "WebAppAdmin" which is already registered because it is
 // listed in fabric/membersrvc/membersrvc.yaml with its one time password.
@@ -67,8 +89,39 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
+   //deploy(webAppAdmin);
+   
    
    // Now begin listening for web app requests
-   listenForUserRequests();
+   //listenForUserRequests();
 });
 }
+
+// Deploy chaincode
+function deploy(user) {
+   console.log("deploying chaincode; please wait ...");
+   // Construct the deploy request
+   var deployRequest = {
+       chaincodeName: "AuthorizableCounterChaincode",
+       fcn: "Init",
+       args: ['a', '100']
+   };
+   // where is the chain code, ignored in dev mode
+   deployRequest.chaincodePath = "test";
+
+   // Issue the deploy request and listen for events
+   var tx = user.deploy(deployRequest);
+   tx.on('complete', function(results) {
+       // Deploy request completed successfully
+       console.log("deploy complete; results: %j",results);
+       // Set the testChaincodeID for subsequent tests
+       chaincodeID = results.chaincodeID;
+       invoke(user);
+   });
+   tx.on('error', function(error) {
+       console.log("Failed to deploy chaincode: request=%j, error=%k",deployRequest,error);
+       process.exit(1);
+   });
+
+}
+
