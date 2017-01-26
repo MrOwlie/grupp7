@@ -1,2 +1,4 @@
-mongodb v. 3.4.1
-nodejs v. 6.9.4
+Ni måste installera mongo container image till docker 
+och köra en docker build på docker filen som följer med. 
+Välj namnet webapp för att stämma överens med docker-compose.
+själva appen är delad till C:/Users/.../mytest. inga modules behövs då det är installerat på själva webapp containern
