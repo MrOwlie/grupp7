@@ -31,6 +31,8 @@ webapp:
   container_name: webapp
   image: webapp
   volumes:
+  ports:
+    - 8080:8080
     # tweak this to map a local developmnt directory tree into the container
     - ~/mytest:/app/src
   environment:

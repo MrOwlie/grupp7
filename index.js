@@ -27,12 +27,37 @@ app.get('/', function(req, res){
 
 app.get('/new', function(req, res){
 	res.send('new sensor');
-	sensor.newSensor(chain, "test");
-	// chain.getMember("test", function(err, member){
-		// if(err)
-			// return console.log("Could not find member");
-		// console.log(member.isRegistered());
-	// });
+	sensor.newSensor(chain, "test", "temperature");
+});
+
+app.get('/test', function(req, res){
+	chain.getMember("test", function(err, member){
+		if(err)
+			return console.log("Could not find member");
+		
+		var invokeRequest = {
+        // Name (hash) required for invoke
+        chaincodeID: 'auth',
+        // Function to trigger
+        fcn: 'increment',
+        // Parameters for the invoke function
+        args: 1
+		};
+		
+		var tx = user.invoke(invokeRequest);
+		 // Listen for the 'submitted' event
+		 tx.on('submitted', function(results) {
+			console.log("submitted invoke: %j",results);
+		 });
+		 // Listen for the 'complete' event.
+		 tx.on('complete', function(results) {
+			console.log("completed invoke: %j",results);
+		 });
+		 // Listen for the 'error' event.
+		 tx.on('error', function(err) {
+			console.log("error on invoke: %j",err);
+		 });
+	});
 });
 
 app.listen(8080, function(){
@@ -102,7 +127,7 @@ function deploy(user) {
    console.log("deploying chaincode; please wait ...");
    // Construct the deploy request
    var deployRequest = {
-       chaincodeName: "AuthorizableCounterChaincode",
+       chaincodeName: "auth",
        fcn: "Init",
        args: ['a', '100']
    };
