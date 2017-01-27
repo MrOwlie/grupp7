@@ -31,33 +31,7 @@ app.get('/new', function(req, res){
 });
 
 app.get('/test', function(req, res){
-	chain.getMember("test", function(err, member){
-		if(err)
-			return console.log("Could not find member");
-		
-		var invokeRequest = {
-        // Name (hash) required for invoke
-        chaincodeID: 'auth',
-        // Function to trigger
-        fcn: 'increment',
-        // Parameters for the invoke function
-        args: 1
-		};
-		
-		var tx = user.invoke(invokeRequest);
-		 // Listen for the 'submitted' event
-		 tx.on('submitted', function(results) {
-			console.log("submitted invoke: %j",results);
-		 });
-		 // Listen for the 'complete' event.
-		 tx.on('complete', function(results) {
-			console.log("completed invoke: %j",results);
-		 });
-		 // Listen for the 'error' event.
-		 tx.on('error', function(err) {
-			console.log("error on invoke: %j",err);
-		 });
-	});
+	userInvoke("test", "auth", "increment", [])
 });
 
 app.listen(8080, function(){
@@ -72,7 +46,7 @@ console.log(" **** starting HFC sample ****");
 var PEER_ADDRESS         = process.env.CORE_PEER_ADDRESS;
 var MEMBERSRVC_ADDRESS   = process.env.MEMBERSRVC_ADDRESS;
 
-var chain, chaincodeID;
+var chaincodeID;
 
 // Create a chain object used to interact with the chain.
 // You can name it anything you want as it is only used by client.
@@ -114,7 +88,7 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-   //deploy(webAppAdmin);
+   deploy(webAppAdmin, "auth", "Init", ['a', '100'], "not-relevant");
    
    
    // Now begin listening for web app requests
@@ -123,16 +97,16 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
 }
 
 // Deploy chaincode
-function deploy(user) {
-   console.log("deploying chaincode; please wait ...");
+function deploy(user, chaincode, func, depargs, codepath) {
+   console.log("deploying chaincode "+ chaincode +"; please wait ...");
    // Construct the deploy request
    var deployRequest = {
-       chaincodeName: "auth",
-       fcn: "Init",
-       args: ['a', '100']
+       chaincodeName: chaincode,
+       fcn: func,
+       args: depargs
    };
    // where is the chain code, ignored in dev mode
-   deployRequest.chaincodePath = "test";
+   deployRequest.chaincodePath = codepath;
 
    // Issue the deploy request and listen for events
    var tx = user.deploy(deployRequest);
@@ -141,11 +115,41 @@ function deploy(user) {
        console.log("deploy complete; results: %j",results);
        // Set the testChaincodeID for subsequent tests
        chaincodeID = results.chaincodeID;
-       invoke(user);
    });
    tx.on('error', function(error) {
        console.log("Failed to deploy chaincode: request=%j, error=%k",deployRequest,error);
        process.exit(1);
    });
 
+}
+
+function userInvoke(user, chaincode, func, ccargs){
+	chain.getMember(user, function(err, member){
+		if(err)
+			return console.log("Could not find member " + user);
+		
+		var invokeRequest = {
+        // Name (hash) required for invoke
+        chaincodeID: chaincode,
+        // Function to trigger
+        fcn: func,
+        // Parameters for the invoke function
+        args: ccargs
+		};
+		console.log(ccargs);
+		var tx = member.invoke(invokeRequest);
+		console.log(user+" started invoke");
+		 // Listen for the 'submitted' event
+		 tx.on('submitted', function(results) {
+			console.log("submitted invoke: %j",results);
+		 });
+		 // Listen for the 'complete' event.
+		 tx.on('complete', function(results) {
+			console.log("completed invoke: %j",results);
+		 });
+		 // Listen for the 'error' event.
+		 tx.on('error', function(err) {
+			console.log("error on invoke: %j",err);
+		 });
+	});
 }

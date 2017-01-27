@@ -9,10 +9,10 @@ exports.newSensor = function(chain, sensorName, datatype ) {
 	         roles: [  ],
 	         enrollmentID: sensorName,
 	         affiliation: 'bank_a', //'bank_a' is pre registered, how to register own groups?
-	         attributes: [{name:'type',value:'sensor'},{name:'datatype',value:userAccount}]
+	         attributes: [{name:'type',value:'sensor'},{name:'datatype',value:datatype}]
 	    };
    chain.registerAndEnroll( registrationRequest, function(err, user) {
       if (err) return console.log("ERROR: %s",err);
-		else console.log(user +" registered");
+		else console.log(sensorName +" registered");
    });
 }
