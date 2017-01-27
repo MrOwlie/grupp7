@@ -1,6 +1,9 @@
 import fmt
 import errors
+import strconv
+import github.com/hyperledger/fabric/accesscontrol/impl
 import github.com/hyperledger/fabric/core/chaincode/shim
+import github.com/hyperledger/fabric/protos/peer
 
 //Init is called when you first deploy your chaincode. As the name implies, this function should be used to do any initialization your chaincode needs.
 
@@ -18,17 +21,38 @@ func (t *TempChaincode) Init(stub shim.ChaincodeStubInterface, function string, 
 //When you need to update the ledger, you will do so by invoking your chaincode.
 //Blocks are added to the chain when this function is called.
 func (t *TempChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-    fmt.Println("invoke is running " + function)
-
-    // Handle different functions
+    //handle init function
     if function == "init" {
+        fmt.Println("invoke is running init")
         return t.Init(stub, "init", args)
-    } else if function == "write" {
-        return t.write(stub, args)
     }
-    fmt.Println("invoke did not find func: " + function)
 
-    return nil, errors.New("Received unknown function invocation: " + function)
+    err := nil
+
+    val, err := impl.NewAccessControlShim(stub).ReadCertAttribute("type")
+
+    if err != nil{
+        fmt.Printf("Position => %v error %v \n", string(val), err)
+    }
+
+    isOk, _ := impl.NewAccessControlShim(stub).VerifyAttribute("type", []byte("sensor")) // Here the ABAC API is called to verify the attribute, just if the value is verified the counter will be incremented.
+
+
+    //Only proceed if the invoker is of type "sensor".
+    if isOk{
+        fmt.Println("invoke is running " + function)
+
+        // Handle write function
+        if function == "write" {
+            return t.write(stub, args)
+        } else {
+            err := errors.New("Received unknown function invocation: " + function)
+        }
+        fmt.Println("invoke did not find func: " + function)
+    } else {
+        err := errors.New("Authentication failed for invocation.")
+    }
+    return nil, err
 }
 
 
@@ -36,15 +60,29 @@ func (t *TempChaincode) Invoke(stub shim.ChaincodeStubInterface, function string
 //This function is used to query the chain code. It redirects the request to a helper function that will handle the specific request.
 //Blocks are not added to the chain when this function is called.
 func (t *TempChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-    fmt.Println("query is running " + function)
-
-    // Handle different functions
-    if function == "read" {                            //read a variable
-        return t.read(stub, args)
+    err := nil
+    val, err := impl.NewAccessControlShim(stub).ReadCertAttribute("type")
+    if err != nil {
+        fmt.Printf("Position => %v error %v \n", string(val), err)
     }
-    fmt.Println("query did not find func: " + function)
+    isOk, _ := impl.NewAccessControlShim(stub).VerifyAttribute("type", []byte("3rdParty")) // Here the ABAC API is called to verify the attribute, just if the value is verified the counter will be incremented.
 
-    return nil, errors.New("Received unknown function query: " + function)
+    if isOk {
+        fmt.Println("query is running " + function)
+
+        // Handle function
+        if function == "read" {                            //read a variable
+            return t.read(stub, args)
+        } else {
+            err := errors.New("Received unknown function query: " + function)
+        }
+
+
+    } else {
+       err := errors.New("Request could not be authenticated")
+    }
+
+    return nil, err
 }
 
 
@@ -53,7 +91,7 @@ func (t *TempChaincode) Query(stub shim.ChaincodeStubInterface, function string,
 func main() {
   err := shim.Start(new(TempChaincode))
   if (err != nil) {
-    fmt.Printf("Error starting Simple chaincode: %s", err)
+    fmt.Printf("Error starting temperature chaincode: %s", err)
   }
 }
 
