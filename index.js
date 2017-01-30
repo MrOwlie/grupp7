@@ -4,6 +4,7 @@ var express = require('express');
 var app = express()
 var hfc = require('hfc');
 var chain;
+var AJAX = require('./ajax');
 
 var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
@@ -23,6 +24,10 @@ startupHyperledger();
 
 app.get('/', function(req, res){
 	res.send('Main page');
+});
+
+app.get('/submit', function(req, res){
+	AJAX.sensorSubmit(chain, req, res);
 });
 
 app.get('/new', function(req, res){
