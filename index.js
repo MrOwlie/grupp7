@@ -6,28 +6,52 @@ var hfc = require('hfc');
 var chain;
 var AJAX = require('./ajax');
 
-var MongoClient = require('mongodb').MongoClient
-  , assert = require('assert');
+var http = require('http');
+var https = require('https');
 
-	// Connection URL
-	var url = process.env.DATABASE_URL;
+var database = require('./database');
 
-	// Use connect method to connect to the server
-	MongoClient.connect(url, function(err, db) {
-	  assert.equal(null, err);
-	  console.log("Connected successfully to database");
-
-	  db.close();
-	});
 	
 startupHyperledger();
+
+// app.get('/web', function(req, res){
+	
+	// var options = {
+    // host: 'peer',
+    // port: 7051,
+    // path: '/chain',
+    // method: 'GET',
+	// headers: {
+		// 'Host': 'peer:7051'
+	// }
+   
+// };
+	// testing(options, function(){console.log("YAS");});
+// });
+
+// function testing(options, onResult)
+// {
+    // var msg = 'GET /transactions/34543 HTTP/1.1\r\n' +
+          // 'User-Agent: node\r\n' +
+          // 'Host: www.betfair.com\r\n' +
+          // 'Accept: */*\r\n\r\n';
+		  
+	// var client = new require('net').Socket();
+	// client.connect(7051, 'peer', function() {
+		// console.log("connected");
+		// client.write(msg);
+	// });
+	// client.on('data', function(chunk) {
+		// console.log(JSON.stringify(chunk));
+	 // });
+// };
 
 app.get('/', function(req, res){
 	res.send('Main page');
 });
 
 app.get('/submit', function(req, res){
-	AJAX.sensorSubmit(chain, req, res);
+	AJAX.sensorSubmit(chain, database, req, res);
 });
 
 app.get('/new', function(req, res){
@@ -36,7 +60,9 @@ app.get('/new', function(req, res){
 });
 
 app.get('/test', function(req, res){
-	userInvoke("test", "auth", "increment", [])
+	database.insertSensor("aaaa", "1");
+	database.setSensorDescription("aaaa", "hej du din fis");
+	//userInvoke("test", "auth", "increment", [])
 });
 
 app.listen(8080, function(){
@@ -93,7 +119,7 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-   deploy(webAppAdmin, "auth", "Init", ['a', '100'], "not-relevant");
+  // deploy(webAppAdmin, "auth", "Init", ['a', '100'], "not-relevant");
    
    
    // Now begin listening for web app requests

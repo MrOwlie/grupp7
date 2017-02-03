@@ -1,6 +1,6 @@
 //This file contains all the apps ajax functions
 
-exports.sensorSubmit = function(chain, req, res) {
+exports.sensorSubmit = function(chain, db, req, res) {
 	res.header("Access-Control-Allow-Origin", "*")
 	var ID = req.query.id;
 	var data = req.query.data;
@@ -10,6 +10,48 @@ exports.sensorSubmit = function(chain, req, res) {
 		
 		if(sensor.isRegistered() && sensor.isEnrolled()){
 			sensorInvoke(sensor, "auth", "increment", [], 
+			function(result){ //submit handler
+				console.log("Invoke started");
+			},
+			function(result){ //completion handler
+			
+				db.insertData(Date.now(), ID, data);
+				
+				console.log("Invoke completed");
+				res.send('success');
+			},
+			function(err){ //error handler
+				console.log("Invoke failed");
+				
+				//något resultat som ber sensor skicka om sin data...
+				
+				res.send('fail');
+			});
+		}
+		else{
+			
+			db.sensorExists(ID, function(itdoes){
+				if(!itdoes){
+					db.insertSensor(ID, 1);
+				}
+			});
+			
+			return;
+		}
+		
+	});
+}
+
+exports.dataRequest = function(chain, db, req, res) {
+	res.header("Access-Control-Allow-Origin", "*")
+	var ID = req.query.id;
+	var request = req.query.request;
+	
+	chain.getMember(ID, function(err, user){
+		if(err) return console.log("Error retreiving user at data request AJAX");
+		
+		if(user.isRegistered() && user.isEnrolled()){
+			sensorInvoke(user, "auth", "increment", [], 
 			function(result){ //submit handler
 				console.log("Invoke started");
 			},
