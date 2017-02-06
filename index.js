@@ -11,11 +11,11 @@ var https = require('https');
 
 var database = require('./database');
 
-	
+
 startupHyperledger();
 
 // app.get('/web', function(req, res){
-	
+
 	// var options = {
     // host: 'peer',
     // port: 7051,
@@ -24,7 +24,7 @@ startupHyperledger();
 	// headers: {
 		// 'Host': 'peer:7051'
 	// }
-   
+
 // };
 	// testing(options, function(){console.log("YAS");});
 // });
@@ -35,7 +35,7 @@ startupHyperledger();
           // 'User-Agent: node\r\n' +
           // 'Host: www.betfair.com\r\n' +
           // 'Accept: */*\r\n\r\n';
-		  
+
 	// var client = new require('net').Socket();
 	// client.connect(7051, 'peer', function() {
 		// console.log("connected");
@@ -119,9 +119,9 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-  // deploy(webAppAdmin, "auth", "Init", ['a', '100'], "not-relevant");
-   
-   
+	deploy(webAppAdmin, "temperature", "Init", ['a', '100'], "./chaincode");
+
+
    // Now begin listening for web app requests
    //listenForUserRequests();
 });
@@ -158,7 +158,7 @@ function userInvoke(user, chaincode, func, ccargs){
 	chain.getMember(user, function(err, member){
 		if(err)
 			return console.log("Could not find member " + user);
-		
+
 		var invokeRequest = {
         // Name (hash) required for invoke
         chaincodeID: chaincode,
