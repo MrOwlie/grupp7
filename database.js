@@ -151,6 +151,45 @@ exports.getSensorData = function(sensor, tsfrom, tsto){
 	
 }
 
+exports.getSensorFlag = function(id, flag, cb){
+	
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to database");
+	  
+		var collection = db.collection('sensors');
+		// Insert some documents
+		collection.find({'id' : id}, {'flag' : flag}.limit(1).toArray(function(err,docs){
+			assert.equal(err, null);
+			console.log("Retrived 1 document in the collection");
+			
+			if(typeof cb !== 'undefined')
+				cb(result);
+		});
+	  
+		db.close();
+	});
+	
+}
+
+exports.deleteSensor = function(id,cb){
+	MongoClient.connect(url,function(err,db){
+		assert.equal(null,err);
+		console.log("Connected succesfully to database");
+		
+		var collection = db.collection('sensors').deleteMany(
+		{'id' : id},
+		function(err,null){
+			console.log("Removed 1 document in the collection");
+			
+			if(typeof cb !== 'undefined')
+				cb(result);
+			
+		});
+		db.close();
+	}
+}
+
 
 	  
 
