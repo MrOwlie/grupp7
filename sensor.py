@@ -6,12 +6,12 @@ import requests
 
 URL = '' #Enter URL here
 class sensor:
-    
+
     sensorType=""
     sensorId=""
     rightBound=""
     leftBound=""
-    
+
     def __init__(self,id):
         self.sensorId = id;
         self.rightBound=-25; #value to limit first generation of data
@@ -20,18 +20,18 @@ class sensor:
 
     def randomdata(self): #calculate a random temp value
         if(self.latestValue >0):
-            self.rightBound=self.latestValue-5 
+            self.rightBound=self.latestValue-5
             self.leftBound=self.latestValue+5
         else:
             self.rightBound=self.latestValue+5
             self.leftBound=self.latestValue-5
-            
-            
+
+
         self.latestValue=int( random.uniform(self.leftBound,self.rightBound))
         return self.sensorId,self.latestValue
 
 def monthdata(month,sensorid):
-    
+
 
     n = month
     k=1
@@ -46,7 +46,7 @@ def monthdata(month,sensorid):
 
         monthdata = {'date':XD ,'Sensordata' : str(x.randomdata())}
         r = requests.post(URL, data = monthdata )
-        
+
 def sensordata(sensorid):
 
     x=sensor(sensorid)
@@ -59,3 +59,6 @@ def randomID():
     randomID = uuid.uuid4()
     randomID= str(randomID)
     return randomID
+
+if __name__ == "__main__":
+    monthdata("feb", randomID())

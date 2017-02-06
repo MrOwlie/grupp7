@@ -105,7 +105,7 @@ func main() {
 
 
 //helper function, writes a value to a key on the chaincode state with PutState(Key, Value)
-//takes 2 arguments, Key: YYYY-MM-DD-HH, Value: current temperature
+//takes 2 arguments, Key: SensorID, Value: Permission type
 func (t *TempChaincode) write(stub shim.ChaincodeStubInterface) pb.Response {
     _, args := stub.GetFunctionAndParameters()
     var key, value string
@@ -126,7 +126,7 @@ func (t *TempChaincode) write(stub shim.ChaincodeStubInterface) pb.Response {
 }
 
 //helper function, reads a value from key with GetState(key)
-//takes 1 argument, Key: YYYY-MM-DD-HH
+//takes 1 argument, Key: SensorID
 func (t *TempChaincode) read(stub shim.ChaincodeStubInterface) pb.Response {
     _, args := stub.GetFunctionAndParameters()
     var key string
@@ -136,11 +136,11 @@ func (t *TempChaincode) read(stub shim.ChaincodeStubInterface) pb.Response {
     }
 
     key = args[0]
-    valAsbytes, err := stub.GetState(key)
+    valAsBytes, err := stub.GetState(key)
     if err != nil{
         return shim.Error("Failed to get state for " + key + ".")
     }
 
-    return shim.Success(valAsbytes)
+    return shim.Success(valAsBytes)
 
 }
