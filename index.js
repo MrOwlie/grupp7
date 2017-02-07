@@ -2,6 +2,7 @@
 var sensor = require('./sensor');
 var express = require('express');
 var app = express()
+var ejs = require('ejs')
 var hfc = require('hfc');
 var chain;
 var AJAX = require('./ajax');
@@ -13,7 +14,7 @@ var https = require('https');
 
 var database = require('./database');
 
-
+app.set('view engine', 'ejs');
 startupHyperledger();
 
 // app.get('/web', function(req, res){
@@ -67,14 +68,22 @@ app.get('/sensors', function(req, res){
 		json = bson.deserialize(item)
 		jsonObject = JSON.parse(json)
 		if (jsonObject.flag == 'active'){
-			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+			activeTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
 		}else if(jsonObject.flag == 'queue'){
-			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+			queueTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
 		}else if(jsonObject.flag == 'blocked'){
-			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> </tr>")
+			blockedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> </tr>")
 		}
-
 	}
+
+	res.render('views/test', {
+		activeTableArray : activeTableArray,
+		queueTableArray : queueTableArray,
+		blockedTableArray : blockedTableArray
+	});
+
+
+
 });
 
 app.get('/new', function(req, res){
