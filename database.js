@@ -137,9 +137,9 @@ exports.getSensors = function(){
         console.log("Connected successfully to the database.")
 
         var collection = db.collection('sensors');
-        collection.find().toArray(function(err, docs)){
+        collection.find().toArray(function(err, docs){
             assert.equal(err, null);
-            console log("Fetched cursor over all documents in collection('sensors')");
+            console.log("Fetched cursor over all documents in collection('sensors')");
             if(typeof cb != 'undefined'){
                 cb(docs);
             }
