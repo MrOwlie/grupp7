@@ -61,7 +61,7 @@ app.get('/sensors', function(req, res){
 	sensors = database.getSensors();
 
 	var activeTableArray = [];
-	var queueTableArray = [];
+	var queuedTableArray = [];
 	var blockedTableArray = [];
 
 	for (item in sensors) {
@@ -70,7 +70,7 @@ app.get('/sensors', function(req, res){
 		if (jsonObject.flag == 'active'){
 			activeTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
 		}else if(jsonObject.flag == 'queue'){
-			queueTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+			queuedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
 		}else if(jsonObject.flag == 'blocked'){
 			blockedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> </tr>")
 		}
@@ -78,7 +78,7 @@ app.get('/sensors', function(req, res){
 
 	res.render('views/test', {
 		activeTableArray : activeTableArray,
-		queueTableArray : queueTableArray,
+		queuedTableArray : queuedTableArray,
 		blockedTableArray : blockedTableArray
 	});
 
