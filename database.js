@@ -46,7 +46,7 @@ exports.insertSensor = function(id, flag, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.insertOne({'id' : id, 'flag' : flag},
+		collection.insertOne({'id' : id, 'flag' : flag, 'desc' : ''},
 		function(err, result) {
 			assert.equal(err, null);
 			assert.equal(1, result.insertedCount);
@@ -69,7 +69,7 @@ exports.setSensorDescription = function(id, desc, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.updateOne({'id' : id}, {'description' : desc}, null,
+		collection.updateOne({'id' : id}, {'desc' : desc}, null,
 		function(err, result) {
 			assert.equal(err, null);
 			assert.equal(1, result.result.n);
@@ -129,6 +129,24 @@ exports.insertData = function(timestamp, sensor, /*type,*/ data, cb){
 		db.close();
 	});
 
+}
+
+exports.getSensors = function(){
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(null, err);
+        console.log("Connected successfully to the database.")
+
+        var collection = db.collection('sensors');
+        collection.find().toArray(function(err, docs)){
+            assert.equal(err, null);
+            console log("Fetched cursor over all documents in collection('sensors')");
+            if(typeof cb != 'undefined'){
+                cb(docs);
+            }
+        });
+
+        db.close();
+    });
 }
 
 exports.getSensorData = function(sensor, tsfrom, tsto){

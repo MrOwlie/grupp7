@@ -6,6 +6,8 @@ var hfc = require('hfc');
 var chain;
 var AJAX = require('./ajax');
 
+var bson = require('mongodb/js-bson')
+
 var http = require('http');
 var https = require('https');
 
@@ -52,6 +54,18 @@ app.get('/', function(req, res){
 
 app.get('/submit', function(req, res){
 	AJAX.sensorSubmit(chain, database, req, res);
+});
+
+app.get('/sensors', function(req, res){
+	sensors = database.getSensors()
+
+	var tableArray = []
+
+	for (item in sensors) {
+		json = bson.deserialize(item)
+		jsonObject = JSON.parse(json)
+		tableArrray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+	}
 });
 
 app.get('/new', function(req, res){

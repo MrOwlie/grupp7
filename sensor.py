@@ -44,7 +44,7 @@ def monthdata(month,sensorid):
             k =1
         k = k + 1
 
-        monthdata = {'date':XD ,'Sensordata' : str(x.randomdata())}
+        monthdata = {'id' : x.sensorId, 'date':XD ,'data' : str(x.randomdata())}
         r = requests.post(URL, data = monthdata )
 
 def sensordata(sensorid):
@@ -52,7 +52,7 @@ def sensordata(sensorid):
     x=sensor(sensorid)
     ts = time.time()
     TS = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M')
-    sensordata = { 'date' : TS, 'Sensordata' : str(x.randomdata())}
+    sensordata = { 'request' = 'sensorInsert', 'sensorId' : x.sensorId ,'date' : TS, 'Sensordata' : str(x.randomdata())}
     r = requests.post(URL,data = sensordata)
 
 def randomID():
@@ -61,4 +61,4 @@ def randomID():
     return randomID
 
 if __name__ == "__main__":
-    monthdata("feb", randomID())
+    monthdata(2, randomID())
