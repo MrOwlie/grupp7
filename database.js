@@ -12,7 +12,7 @@ var MongoClient = require('mongodb').MongoClient
 
 	  // db.close();
 	// });
-//
+
 exports.sensorExists = function(id, cb){
 
 	MongoClient.connect(url, function(err, db) {
