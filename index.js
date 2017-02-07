@@ -57,14 +57,23 @@ app.get('/submit', function(req, res){
 });
 
 app.get('/sensors', function(req, res){
-	sensors = database.getSensors()
+	sensors = database.getSensors();
 
-	var tableArray = []
+	var activeTableArray = [];
+	var queueTableArray = [];
+	var blockedTableArray = [];
 
 	for (item in sensors) {
 		json = bson.deserialize(item)
 		jsonObject = JSON.parse(json)
-		tableArrray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+		if (jsonObject.flag == 'active'){
+			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+		}else if(jsonObject.flag == 'queue'){
+			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+		}else if(jsonObject.flag == 'blocked'){
+			tableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class="btn btn-sm btn-success" type="submit" name="activate">Block</button> </td> </tr>")
+		}
+
 	}
 });
 
