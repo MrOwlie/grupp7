@@ -1,0 +1,46 @@
+<html>
+
+<head>
+	<script type="text/javascript" src="jquery.js"></script>
+</head>
+
+<script>
+	$(function(){
+		
+		$("#dataSend").on("click", function(){
+			$.ajax({
+                type: "POST",
+                url: "http://localhost:8080/submit/",
+                data: {ID: $("#sensorID").val(), data: $("#sensorData").val()},
+                dataType: "json",
+                success: function (data) {
+
+
+                    $("#requestResults").html(data.response);
+
+                },
+                error: function(e, status, error){
+                    alert(status + " - " + error);
+                }
+            });
+		});
+		
+		$("#dataRequest").on("click", function(){
+		
+		});
+		
+	});
+</script>
+
+<body>
+ID: <input type="text" id="sensorID" /></br>
+Data: <input type="text" id="sensorData" /></br>
+<button id="dataSend">Send Data</button><button id="dataRequest">Request Data</button>
+
+<fieldset>
+	<legend>Results</legend>
+	<div id="requestResults"></div>
+</fieldset>
+
+</body>
+</html>

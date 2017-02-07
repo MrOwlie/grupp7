@@ -1,12 +1,20 @@
 // library for handling sensors
 var sensor = require('./sensor');
+
 var express = require('express');
-var app = express()
+var app = express();
+var bodyParser = require('body-parser');
+//app.use(bodyParser.json());			//to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
+app.use(express.static(__dirname + '/html')); //static path to html files
+
 var hfc = require('hfc');
 var chain;
 var AJAX = require('./ajax');
 
-var bson = require('mongodb/js-bson')
+//var bson = require('mongodb/js-bson')
 
 var http = require('http');
 var https = require('https');
@@ -49,23 +57,25 @@ startupHyperledger();
 // };
 
 app.get('/', function(req, res){
-	res.send('Main page');
+	database.getSensorData("Test10", function(docs){console.log(JSON.stringify(docs));});
+	res.sendFile(__dirname + '/html/sensors.html');
 });
 
-app.get('/submit', function(req, res){
+app.post('/submit', function(req, res){
+	res.header("Access-Control-Allow-Origin", "*");
 	AJAX.sensorSubmit(chain, database, req, res);
 });
 
 app.get('/sensors', function(req, res){
-	sensors = database.getSensors()
+	// sensors = database.getSensors()
 
-	var tableArray = []
+	// var tableArray = []
 
-	for (item in sensors) {
-		json = bson.deserialize(item)
-		jsonObject = JSON.parse(json)
-		tableArrray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
-	}
+	// for (item in sensors) {
+		// json = bson.deserialize(item)
+		// jsonObject = JSON.parse(json)
+		// tableArrray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
+	// }
 });
 
 app.get('/new', function(req, res){
@@ -77,6 +87,26 @@ app.get('/test', function(req, res){
 	database.insertSensor("aaaa", "1");
 	database.setSensorDescription("aaaa", "hej du din fis");
 	//userInvoke("test", "auth", "increment", [])
+});
+
+app.post('/ajax/getSensors', function(req, res){
+	database.getSensors(function(docs){
+		res.end(JSON.stringify(docs));
+	});
+});
+
+app.post('/ajax/setDescription', function(req, res){
+	database.setSensorDescription(req.body.id, req.body.desc, function(){
+		res.end('{"response":"success"}');
+	});
+});
+
+app.post('/ajax/setFlag', function(req, res){
+	if(parseInt(req.body.flag) == 2)
+		sensor.newSensor(chain, req.body.id, "temperature");
+	database.setSensorFlag(req.body.id, req.body.flag, function(){
+		res.end('{"response":"success"}');
+	});
 });
 
 app.listen(8080, function(){
