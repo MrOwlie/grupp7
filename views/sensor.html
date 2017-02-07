@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Index - Hyperledger</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script type='text/javascript' src="https://imsky.github.io/holder/holder.js"></script>
+        <link href="style.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="javascript.js"></script>
+        <!---<link rel="icon" type="image/png" href="images/favicon.png" sizes="32x32">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body {
+            background-image: url(Blue.png);
+          }
+          .carousel {
+          margin-top: -5px;
+            margin-bottom: 50px;
+          }
+          .carousel-inner > .item > img, .carousel-inner > .item > a > img {
+              width: 100%;
+            height: 100%;
+          }
+          .carouseltext {
+              margin-bottom: 150px;
+          }
+          .btn-theme {
+            margin-left: 15px;
+              margin-bottom: -5px;
+          }
+          footer {
+            margin-top: -50px;
+          }
+          .nav-tabs {
+        margin: 0;
+        padding: 0;
+        border: 0;    
+      }
+      .nav-tabs > li > a {
+        background: #DADADA;
+        border-radius: 0;
+        box-shadow: inset 0 -8px 7px -9px rgba(0,0,0,.4),-2px -2px 5px -2px rgba(0,0,0,.4);
+      }
+      .nav-tabs > li.active > a,
+      .nav-tabs > li.active > a:hover {
+        background: #F5F5F5;
+        box-shadow: inset 0 0 0 0 rgba(0,0,0,.4),-2px -3px 5px -2px rgba(0,0,0,.4);
+      }
+     
+      /* Tab Content */
+      .tab-pane {
+        background: #F5F5F5;
+        box-shadow: 0 0 4px rgba(0,0,0,.4);
+        border-radius: 0;
+        padding: 10px;
+      }
+      .tabhead {
+        font-size: 1.25em;
+      }
+      .panel-body {
+        background: #F5F5F5;
+        min-height: 50vh;
+      }
+      </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">Hyperledger</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="">
+                          <a href="index.html">Home</a>
+                        </li>
+                        <li class="active">
+                            <a href="sensors.html">Sensors</a>
+                        </li>
+                        <li class="">
+                            <a href="about.php">About</a>
+                        </li>
+          </ul>
+          <form class="navbar-form navbar-right">
+                  <a href="login.php" class="btn btn-default">Sign in</a>
+                  <a href="register.php" class="btn btn-primary">Register</a>
+              </form>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+    <div class="container">
+      <ul class="nav nav-tabs">
+        <li class="active tabhead"><a data-toggle="tab" href="#active">Active</a></li>
+        <li class="tabhead"><a data-toggle="tab" href="#queue">Queue</a></li>
+        <li class="tabhead"><a data-toggle="tab" href="#blocked">Blocked</a></li>
+      </ul>
+     
+      <div class="tab-content">
+        <div id="active" class="tab-pane fade in active">
+          <h3 style="font-size: 26px; margin-left: 20px;"><u>Active sensors:</u></h3>
+          <hr>
+          <div class="panel panel-body pre-scrollable">
+            <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-5">ID Hash</th>
+                                  <th class="col-md-4">Description</th>
+                                  <th class="col-md-2">Type</th>
+                                  <th class="col-md-1" style="padding-left: 10px;">Block</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                        </tbody>
+                  </table>
+                </div>
+        </div>
+        <div id="queue" class="tab-pane fade">
+          <h3 style="font-size: 26px; margin-left: 20px;"><u>Queued sensors:</u></h3>
+          <hr>
+          <div class="panel panel-body pre-scrollable">
+            <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-5">ID Hash</th>
+                                  <th class="col-md-3">Description</th>
+                                  <th class="col-md-2">Last Request Time</th>
+                                  <th class="col-md-1" style="padding-left: 10px;">Activate</th>
+                                  <th class="col-md-1">Block</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                              <td><button class="btn btn-sm btn-danger" type="submit" name="block">Block</button></td>
+                            </tr>
+                        </tbody>
+                  </table>
+                </div>
+        </div>
+        <div id="blocked" class="tab-pane fade">
+          <h3 style="font-size: 26px; margin-left: 20px;"><u>Blocked sensors:</u></h3>
+          <hr>
+          <div class="panel panel-body pre-scrollable">
+            <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-5">ID Hash</th>
+                                  <th class="col-md-3">Description</th>
+                                  <th class="col-md-3">Last Request Time</th>
+                                  <th class="col-md-1" style="padding-left: 10px;">Activate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                            </tr>
+                            <tr>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td>asd</td>
+                              <td><button class="btn btn-sm btn-success" type="submit" name="activate">Activate</button></td>
+                            </tr>
+                        </tbody>
+                  </table>
+                </div>
+        </div>
+       
+      </div>
+    </div><!-- /container -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
