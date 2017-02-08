@@ -65,6 +65,10 @@ app.get('/sensors', function(req, res){
 	});
 });
 
+app.get('/addSensor', function(req, res){
+  res.render('addsensor');
+});
+
 app.get('/new', function(req, res){
 	res.send('new sensor');
 	sensor.newSensor(chain, "test", "temperature");
@@ -252,4 +256,3 @@ function userInvoke(user, chaincode, func, ccargs){
 		// console.log(JSON.stringify(chunk));
 	 // });
 // };
-
