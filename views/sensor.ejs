@@ -120,7 +120,8 @@
                         </thead>
                         <tbody>
                             <% activeTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <%= row; %>
                             <% }); %>
                         </tbody>
                   </table>
@@ -142,7 +143,8 @@
                         </thead>
                         <tbody>
                             <% queuedTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <%- row; %>
                             <% }); %>
                         </tbody>
                   </table>
@@ -163,7 +165,8 @@
                         </thead>
                         <tbody>
                             <% blockedTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <% row; %>
                             <% }); %>
                         </tbody>
                   </table>

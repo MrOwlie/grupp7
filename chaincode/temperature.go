@@ -112,7 +112,7 @@ func (t *TempChaincode) write(stub shim.ChaincodeStubInterface) pb.Response {
     var err error
     fmt.Println("running write()")
 
-    if len(args) != 2 {
+    if {
         return shim.Error("Incorrect number of arguments. Expecting 2!")
     }
 
