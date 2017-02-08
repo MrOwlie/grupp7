@@ -37,7 +37,7 @@
 		  .nav-tabs {
         margin: 0;
         padding: 0;
-        border: 0;    
+        border: 0;
       }
       .nav-tabs > li > a {
         background: #DADADA;
@@ -49,7 +49,7 @@
         background: #F5F5F5;
         box-shadow: inset 0 0 0 0 rgba(0,0,0,.4),-2px -3px 5px -2px rgba(0,0,0,.4);
       }
-      
+
       /* Tab Content */
       .tab-pane {
         background: #F5F5F5;
@@ -65,11 +65,11 @@
         min-height: 50vh;
       }
 	  </style>
-	  
+
 	  <script>
-			
+
 			$(function(){
-			
+
 				$.ajax({
 					type: "POST",
 					url: "http://localhost:8080/ajax/getSensors",
@@ -97,7 +97,7 @@
 											  '<td><button class="btn btn-sm btn-danger js-sensor-block" data-id="'+data[a].id+'">Block</button></td></tr>';
 									$("#activeSensors tbody").append(html);
 									break;
-								case 3:	
+								case 3:
 									var html = '<tr><td>'+data[a].id+'</td>' +
 												'<td>Currently Unavailable</td>' +
 											  '<td>'+data[a].desc+'</td>' +
@@ -115,25 +115,25 @@
 						alert(status + " - " + error);
 					}
 				});
-				
+
 				$(document).on("blur", ".js-sensor-description", function(){
-				
+
 					$.ajax({
 						type: "POST",
 						url: "http://localhost:8080/ajax/setDescription",
 						data: {id: $(this).attr("data-id"), desc: $(this).val()},
 						dataType: "json",
 						success: function (data) {
-						
+
 						},
 						error: function(e, status, error){
 							alert(status + " - " + error);
 						}
 					});
 				});
-				
+
 				$(document).on("click", ".js-sensor-activate", function(){
-				
+
 					$.ajax({
 						type: "POST",
 						url: "http://localhost:8080/ajax/setFlag",
@@ -148,9 +148,9 @@
 						}
 					});
 				});
-				
+
 				$(document).on("click", ".js-sensor-block", function(){
-				
+
 					$.ajax({
 						type: "POST",
 						url: "http://localhost:8080/ajax/setFlag",
@@ -165,10 +165,10 @@
 						}
 					});
 				});
-			
+
 			});
-			
-			
+
+
 	  </script>
   </head>
   <body>
@@ -181,23 +181,23 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.html">Hyperledger</a>
+          <a class="navbar-brand" href="index">Hyperledger</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             <li class="">
-						  <a href="index.html">Home</a>
+						  <a href="index">Home</a>
 						</li>
 						<li class="active">
-							<a href="sensors.html">Sensors</a>
+							<a href="sensorS">Sensors</a>
 						</li>
 						<li class="">
-							<a href="about.php">About</a>
+							<a href="about">About</a>
 						</li>
           </ul>
           <form class="navbar-form navbar-right">
-			      <a href="login.php" class="btn btn-default">Sign in</a>
-			      <a href="register.php" class="btn btn-primary">Register</a>
+			      <a href="login" class="btn btn-default">Sign in</a>
+			      <a href="register" class="btn btn-primary">Register</a>
 		      </form>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container -->
@@ -208,7 +208,7 @@
         <li class="tabhead"><a data-toggle="tab" href="#queue">Queue</a></li>
         <li class="tabhead"><a data-toggle="tab" href="#blocked">Blocked</a></li>
       </ul>
-      
+
       <div class="tab-content">
         <div id="active" class="tab-pane fade in active">
           <h3 style="font-size: 26px; margin-left: 20px;"><u>Active sensors:</u></h3>
@@ -269,7 +269,7 @@
 						    </tr>
 					    </thead>
   						<tbody>
-						
+
   						</tbody>
 			      </table>
 			    </div>
@@ -317,7 +317,7 @@
 			      </table>
 			    </div>
         </div>
-        
+
       </div>
     </div><!-- /container -->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
