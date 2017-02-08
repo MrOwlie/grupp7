@@ -36,7 +36,10 @@ exports.sensorSubmit = function(chain, db, req, res) {
 				// res.end('{"response":"error"}');
 			// });
 
-			sensorInvoke(sensor, "temperature", "write", {sensID, date},
+			sensorInvoke(sensor, "temperature", "write", [],
+			function(result){
+				console.log("bläääääääääääää");
+			},
 			function(result){ //completion handler
 
 				db.insertData(/*date*/new Date(), sensID, data);
@@ -108,7 +111,7 @@ exports.dataRequest = function(chain, db, req, res) {
 	});
 }
 
-function sensorInvoke(sensor, chaincode, func, ccargs, comp, err){
+function sensorInvoke(sensor, chaincode, func, ccargs, sub, comp, err){
 
 		var invokeRequest = {
         // Name (hash) required for invoke
@@ -122,7 +125,7 @@ function sensorInvoke(sensor, chaincode, func, ccargs, comp, err){
 		var tx = sensor.invoke(invokeRequest);
 		console.log("Sensor started invoke");
 		 // Listen for the 'submitted' event
-		 tx.on('submitted', null);
+		 tx.on('submitted', sub);
 		 // Listen for the 'complete' event.
 		 tx.on('complete', comp);
 		 // Listen for the 'error' event.
