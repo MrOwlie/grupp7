@@ -49,11 +49,11 @@ app.get('/sensors', function(req, res){
 	for (item in sensors) {
 		json = bson.deserialize(item)
 		jsonObject = JSON.parse(json)
-		if (jsonObject.flag == 'active'){
+		if (jsonObject.flag == 'Active'){
 			activeTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-		}else if(jsonObject.flag == 'queue'){
+		}else if(jsonObject.flag == 'Queued'){
 			queuedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-		}else if(jsonObject.flag == 'blocked'){
+		}else if(jsonObject.flag == 'Blocked'){
 			blockedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> </tr>")
 		}
 	}
@@ -63,6 +63,10 @@ app.get('/sensors', function(req, res){
 		queuedTableArray : queuedTableArray,
 		blockedTableArray : blockedTableArray
 	});
+});
+
+app.get('/addSensor', function(req, res){
+  res.render('addsensor');
 });
 
 app.get('/new', function(req, res){
@@ -251,4 +255,3 @@ function userInvoke(user, chaincode, func, ccargs){
 		// console.log(JSON.stringify(chunk));
 	 // });
 // };
-
