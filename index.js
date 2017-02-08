@@ -163,7 +163,7 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-	deploy(webAppAdmin, "temperature", "Init", ['a', '100'], "./chaincode");
+	deploy(webAppAdmin, "temperature", "Init", [], "./chaincode");
 
 
    // Now begin listening for web app requests
@@ -189,7 +189,6 @@ function deploy(user, chaincode, func, depargs, codepath) {
        // Deploy request completed successfully
        console.log("deploy complete; results: %j",results);
        // Set the testChaincodeID for subsequent tests
-       chaincodeID = results.chaincodeID;
    });
    tx.on('error', function(error) {
        console.log("Failed to deploy chaincode: request=%j, error=%k",deployRequest,error);

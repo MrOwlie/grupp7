@@ -14,19 +14,40 @@ exports.sensorSubmit = function(chain, db, req, res) {
 		}
 
 		if(sensor.isRegistered() && sensor.isEnrolled()){
-			sensorInvoke(sensor, "temperature", "read", [],
-			function(result){ //submit handler
-				console.log("Invoke started");
-			},
+			// sensorInvoke(sensor, "temperature", "write", [],
+			// function(result){ //submit handler
+				// console.log(JSON.stringify(result));
+				// //console.log("Invoke started");
+			// },
+			// function(result){ //completion handler
+
+				// db.insertData(/*date*/new Date(), sensID, data);
+
+				// console.log(JSON.stringify(result));
+				// //console.log("Invoke completed");
+				// res.end('{"response":"success"}');
+			// },
+			// function(err){ //error handler
+				// //console.log("Invoke failed");
+				// console.log(JSON.stringify(result));
+
+				// //n�got resultat som ber sensor skicka om sin data...
+
+				// res.end('{"response":"error"}');
+			// });
+			
+			sensorQuery(sensor, "temperature", "read", [],
 			function(result){ //completion handler
 
 				db.insertData(/*date*/new Date(), sensID, data);
 
-				console.log("Invoke completed");
+				console.log(JSON.stringify(result));
+				//console.log("Invoke completed");
 				res.end('{"response":"success"}');
 			},
 			function(err){ //error handler
-				console.log("Invoke failed");
+				//console.log("Invoke failed");
+				console.log(JSON.stringify(err));
 
 				//n�got resultat som ber sensor skicka om sin data...
 
@@ -107,4 +128,24 @@ function sensorInvoke(sensor, chaincode, func, ccargs, sub, comp, err){
 		 // Listen for the 'error' event.
 		 tx.on('error', err);
 
+}
+
+// Query chaincode
+function sensorQuery(sensor, chaincode, func, ccargs, comp, err) {
+   console.log("querying chaincode ...");
+   // Construct a query request
+   var queryRequest = {
+      // Name (hash) required for invoke
+        chaincodeID: chaincode,
+        // Function to trigger
+        fcn: func,
+        // Parameters for the invoke function
+        args: ccargs
+   };
+   // Issue the query request and listen for events
+   var tx = sensor.query(queryRequest);
+   // Listen for the 'complete' event.
+		 tx.on('complete', comp);
+		 // Listen for the 'error' event.
+		 tx.on('error', err);
 }
