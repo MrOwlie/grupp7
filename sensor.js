@@ -25,6 +25,4 @@ exports.newSensor = function(chain, sensorName, datatype ) {
 		}
 		
    });
-   
-   
 }

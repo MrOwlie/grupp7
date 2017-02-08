@@ -2,59 +2,32 @@
 var sensor = require('./sensor');
 
 var express = require('express');
-var app = express();
+var app = express()
 var bodyParser = require('body-parser');
-//app.use(bodyParser.json());			//to support JSON-encoded bodies
+
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
-app.use(express.static(__dirname + '/html')); //static path to html files
 
+//tror inte denna ska användas när vi kör ejs, låter den ligga som kommentar ifall att
+//app.use(express.static(__dirname + '/html')); //static path to html files
+
+var ejs = require('ejs')
 var hfc = require('hfc');
 var chain;
 var AJAX = require('./ajax');
 
-//var bson = require('mongodb/js-bson')
+var bson = require('bson')
 
 var http = require('http');
 var https = require('https');
 
 var database = require('./database');
 
-
+app.set('view engine', 'ejs');
 startupHyperledger();
 
-// app.get('/web', function(req, res){
 
-	// var options = {
-    // host: 'peer',
-    // port: 7051,
-    // path: '/chain',
-    // method: 'GET',
-	// headers: {
-		// 'Host': 'peer:7051'
-	// }
-
-// };
-	// testing(options, function(){console.log("YAS");});
-// });
-
-// function testing(options, onResult)
-// {
-    // var msg = 'GET /transactions/34543 HTTP/1.1\r\n' +
-          // 'User-Agent: node\r\n' +
-          // 'Host: www.betfair.com\r\n' +
-          // 'Accept: */*\r\n\r\n';
-
-	// var client = new require('net').Socket();
-	// client.connect(7051, 'peer', function() {
-		// console.log("connected");
-		// client.write(msg);
-	// });
-	// client.on('data', function(chunk) {
-		// console.log(JSON.stringify(chunk));
-	 // });
-// };
 
 app.get('/', function(req, res){
 	database.getSensorData("Test10", function(docs){console.log(JSON.stringify(docs));});
@@ -67,15 +40,29 @@ app.post('/submit', function(req, res){
 });
 
 app.get('/sensors', function(req, res){
-	// sensors = database.getSensors()
+	sensors = database.getSensors();
 
-	// var tableArray = []
+	var activeTableArray = [];
+	var queuedTableArray = [];
+	var blockedTableArray = [];
 
-	// for (item in sensors) {
-		// json = bson.deserialize(item)
-		// jsonObject = JSON.parse(json)
-		// tableArrray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class="btn btn-sm btn-danger" type="submit" name="block">Block</button> </td> </tr>")
-	// }
+	for (item in sensors) {
+		json = bson.deserialize(item)
+		jsonObject = JSON.parse(json)
+		if (jsonObject.flag == 'active'){
+			activeTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
+		}else if(jsonObject.flag == 'queue'){
+			queuedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
+		}else if(jsonObject.flag == 'blocked'){
+			blockedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> </tr>")
+		}
+	}
+
+	res.render('sensor', {
+		activeTableArray : activeTableArray,
+		queuedTableArray : queuedTableArray,
+		blockedTableArray : blockedTableArray
+	});
 });
 
 app.get('/new', function(req, res){
@@ -228,3 +215,41 @@ function userInvoke(user, chaincode, func, ccargs){
 		 });
 	});
 }
+
+
+///////////
+//Cleanup//
+///////////
+
+// app.get('/web', function(req, res){
+
+	// var options = {
+    // host: 'peer',
+    // port: 7051,
+    // path: '/chain',
+    // method: 'GET',
+	// headers: {
+		// 'Host': 'peer:7051'
+	// }
+
+// };
+	// testing(options, function(){console.log("YAS");});
+// });
+
+// function testing(options, onResult)
+// {
+    // var msg = 'GET /transactions/34543 HTTP/1.1\r\n' +
+          // 'User-Agent: node\r\n' +
+          // 'Host: www.betfair.com\r\n' +
+          // 'Accept: */*\r\n\r\n';
+
+	// var client = new require('net').Socket();
+	// client.connect(7051, 'peer', function() {
+		// console.log("connected");
+		// client.write(msg);
+	// });
+	// client.on('data', function(chunk) {
+		// console.log(JSON.stringify(chunk));
+	 // });
+// };
+

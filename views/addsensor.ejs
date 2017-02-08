@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Add a sensor - Hyperledger</title>
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script type='text/javascript' src="https://imsky.github.io/holder/holder.js"></script>
+		<link href="style.css" rel="stylesheet">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="javascript.js"></script>
+		<!--<link rel="icon" type="image/png" href="images/favicon.png" sizes="32x32">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+		  body {
+		  	background-image: url("images/Blue.png");
+		  }
+		  .header-text {
+		    color: #5a5a5a;
+		    font-size: 24px;
+			  margin-bottom: 20px;
+	    }
+		  .username-text {
+		    color: #5a5a5a;
+			  padding-left: 2px;
+			  margin-top: 40px;
+			  margin-bottom: 5px;
+			  font-weight: bold;
+		  }
+		  .password-text {
+		    color: #5a5a5a;
+			  margin-bottom: 5px;
+			  font-weight: bold;
+		  }
+		  .signup-text {
+		    color: #5a5a5a;
+			  padding-left: 15px;
+			  font-weight: bold;
+		  }
+		  footer {
+	      position: absolute;
+	      bottom: 0;
+			  left: 41%;
+	    }
+		  .form-signin {
+		    margin-left: 5%;
+		    width: 90%;
+		  }
+		  .submit {
+		    width: 90%;
+		    margin-left: 5%;
+		    margin-top: 5px;
+		    margin-bottom: 10px;
+		  }
+		  .well-sm {
+		  	margin-top: 20%;
+		  }
+		  select:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #000;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index">Hyperledger</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="">
+						  <a href="index">Home</a>
+						</li>
+						<li class="">
+							<a href="sensors">Sensors</a>
+						</li>
+						<li class="">
+							<a href="about">About</a>
+						</li>
+          </ul>
+          <form class="navbar-form navbar-right">
+			      <a href="login" class="btn btn-default">Sign in</a>
+			      <a href="register" class="btn btn-primary">Register</a>
+		      </form>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+		      <div class="well well-sm">
+		        <h1 class="header-text"><center>Add a sensor</center></h1>
+		        <form class="form-signin" action="" method="post">
+			        <div class="username-text">ID Hash</div>
+              <input class="form-control" name="id" required autofocus><br>
+			        <div class="password-text">Flag</div>
+              <select class="form-control" name="flag" required>
+                <option>Queued</option>
+                <option>Active</option>
+                <option>Blocked</option>
+              </select><br>
+              <div class="password-text">Description</div>
+              <div class="form-group">
+        				<form accept-charset="UTF-8" action="" method="post">
+        			 	  <textarea class="form-control" id="InputDescription" name="InputDescription" placeholder="Type in your Description here" maxlength="250" rows="5"></textarea>
+        				</form>
+        		  </div>
+              <button class="btn btn-md btn-primary btn-block submit" type="submit" name="submit" value="submit">Add sensor</button>
+            </form>
+		      </div>
+		  </div>
+	  </div>
+
+      <!-- FOOTER -->
+      <footer>
+        <!---<p>&copy; 2017 Hyperledger for IoT, by D0020E Grupp 7.</p>-->
+      </footer>
+
+    </div><!-- /container -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
