@@ -1,7 +1,17 @@
 // library for handling sensors
 var sensor = require('./sensor');
+
 var express = require('express');
 var app = express()
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
+
+//tror inte denna ska användas när vi kör ejs, låter den ligga som kommentar ifall att
+//app.use(express.static(__dirname + '/html')); //static path to html files
+
 var ejs = require('ejs')
 var hfc = require('hfc');
 var chain;
@@ -17,43 +27,15 @@ var database = require('./database');
 app.set('view engine', 'ejs');
 startupHyperledger();
 
-// app.get('/web', function(req, res){
 
-	// var options = {
-    // host: 'peer',
-    // port: 7051,
-    // path: '/chain',
-    // method: 'GET',
-	// headers: {
-		// 'Host': 'peer:7051'
-	// }
-
-// };
-	// testing(options, function(){console.log("YAS");});
-// });
-
-// function testing(options, onResult)
-// {
-    // var msg = 'GET /transactions/34543 HTTP/1.1\r\n' +
-          // 'User-Agent: node\r\n' +
-          // 'Host: www.betfair.com\r\n' +
-          // 'Accept: */*\r\n\r\n';
-
-	// var client = new require('net').Socket();
-	// client.connect(7051, 'peer', function() {
-		// console.log("connected");
-		// client.write(msg);
-	// });
-	// client.on('data', function(chunk) {
-		// console.log(JSON.stringify(chunk));
-	 // });
-// };
 
 app.get('/', function(req, res){
-	res.send('Main page');
+	database.getSensorData("Test10", function(docs){console.log(JSON.stringify(docs));});
+	res.sendFile(__dirname + '/html/sensors.html');
 });
 
-app.get('/submit', function(req, res){
+app.post('/submit', function(req, res){
+	res.header("Access-Control-Allow-Origin", "*");
 	AJAX.sensorSubmit(chain, database, req, res);
 });
 
@@ -81,9 +63,6 @@ app.get('/sensors', function(req, res){
 		queuedTableArray : queuedTableArray,
 		blockedTableArray : blockedTableArray
 	});
-
-
-
 });
 
 app.get('/new', function(req, res){
@@ -95,6 +74,26 @@ app.get('/test', function(req, res){
 	database.insertSensor("aaaa", "1");
 	database.setSensorDescription("aaaa", "hej du din fis");
 	//userInvoke("test", "auth", "increment", [])
+});
+
+app.post('/ajax/getSensors', function(req, res){
+	database.getSensors(function(docs){
+		res.end(JSON.stringify(docs));
+	});
+});
+
+app.post('/ajax/setDescription', function(req, res){
+	database.setSensorDescription(req.body.id, req.body.desc, function(){
+		res.end('{"response":"success"}');
+	});
+});
+
+app.post('/ajax/setFlag', function(req, res){
+	if(parseInt(req.body.flag) == 2)
+		sensor.newSensor(chain, req.body.id, "temperature");
+	database.setSensorFlag(req.body.id, req.body.flag, function(){
+		res.end('{"response":"success"}');
+	});
 });
 
 app.listen(8080, function(){
@@ -216,3 +215,41 @@ function userInvoke(user, chaincode, func, ccargs){
 		 });
 	});
 }
+
+
+///////////
+//Cleanup//
+///////////
+
+// app.get('/web', function(req, res){
+
+	// var options = {
+    // host: 'peer',
+    // port: 7051,
+    // path: '/chain',
+    // method: 'GET',
+	// headers: {
+		// 'Host': 'peer:7051'
+	// }
+
+// };
+	// testing(options, function(){console.log("YAS");});
+// });
+
+// function testing(options, onResult)
+// {
+    // var msg = 'GET /transactions/34543 HTTP/1.1\r\n' +
+          // 'User-Agent: node\r\n' +
+          // 'Host: www.betfair.com\r\n' +
+          // 'Accept: */*\r\n\r\n';
+
+	// var client = new require('net').Socket();
+	// client.connect(7051, 'peer', function() {
+		// console.log("connected");
+		// client.write(msg);
+	// });
+	// client.on('data', function(chunk) {
+		// console.log(JSON.stringify(chunk));
+	 // });
+// };
+

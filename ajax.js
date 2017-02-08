@@ -1,13 +1,17 @@
 //This file contains all the apps ajax functions
 
 exports.sensorSubmit = function(chain, db, req, res) {
-	res.header("Access-Control-Allow-Origin", "*")
-	var ID = req.query.id;
-	var date = req.query.date;
-	var data = req.query.data;
+	
+	var sensID = req.body.ID;
+	var date = req.body.date;
+	var data = req.body.data;
+	
 
-	chain.getMember(ID, function(err, sensor){
-		if(err) return console.log("Error retreiving sensor at sensor submit AJAX");
+	chain.getMember(sensID, function(err, sensor){
+		if(err){
+			console.log("Error retreiving sensor at sensor submit AJAX");
+			res.end('{"response":"error"}');
+		}
 
 		if(sensor.isRegistered() && sensor.isEnrolled()){
 			sensorInvoke(sensor, "temperature", "read", [],
@@ -16,28 +20,30 @@ exports.sensorSubmit = function(chain, db, req, res) {
 			},
 			function(result){ //completion handler
 
-				db.insertData(date, ID, data);
+				db.insertData(/*date*/new Date(), sensID, data);
 
 				console.log("Invoke completed");
-				res.send('success');
+				res.end('{"response":"success"}');
 			},
 			function(err){ //error handler
 				console.log("Invoke failed");
 
 				//n�got resultat som ber sensor skicka om sin data...
 
-				res.send('fail');
+				res.end('{"response":"error"}');
 			});
 		}
 		else{
 
-			db.sensorExists(ID, function(itdoes){
+			db.sensorExists(sensID, function(itdoes){
 				if(!itdoes){
-					db.insertSensor(ID, 1);
+					db.insertSensor(sensID, 1);
+					res.end('{"response":"placed in queue"}');
 				}
+				else
+					res.end('{"response":"already in queue"}');
 			});
 
-			return;
 		}
 
 	});
@@ -45,8 +51,8 @@ exports.sensorSubmit = function(chain, db, req, res) {
 
 exports.dataRequest = function(chain, db, req, res) {
 	res.header("Access-Control-Allow-Origin", "*")
-	var ID = req.query.id;
-	var request = req.query.request;
+	var ID = req.body.id;
+	var request = req.body.request;
 
 	chain.getMember(ID, function(err, user){
 		if(err) return console.log("Error retreiving user at data request AJAX");
