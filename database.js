@@ -13,7 +13,7 @@ var MongoClient = require('mongodb').MongoClient
 	  // db.close();
 	// });
 
-exports.sensorExists = function(id, cb){
+exports.sensorExists = function(cid, cb){
 
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
@@ -21,9 +21,8 @@ exports.sensorExists = function(id, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.find({'id' : id}.limit(1).toArray(function(err, docs) {
+		collection.find({'id' : cid}).limit(1).toArray(function(err, docs) {
 			assert.equal(err, null);
-			console.log("Inserted 1 document into the collection");
 
 			if(typeof cb !== 'undefined'){
 				if(docs.length == 1)
@@ -31,7 +30,7 @@ exports.sensorExists = function(id, cb){
 				else
 					cb(false);
 			}
-		}));
+		});
 
 		db.close();
 	});
@@ -69,7 +68,30 @@ exports.setSensorDescription = function(id, desc, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.updateOne({'id' : id}, {'desc' : desc}, null,
+		collection.updateOne({'id' : id}, {$set:{'desc' : desc}}, null,
+		function(err, result) {
+			assert.equal(err, null);
+			assert.equal(1, result.result.n);
+			console.log("updated 1 document in the collection");
+
+			if(typeof cb !== 'undefined')
+				cb(result);
+		});
+
+		db.close();
+	});
+
+}
+
+exports.setSensorType = function(id, type, cb){
+
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to database");
+
+		var collection = db.collection('sensors');
+		// Insert some documents
+		collection.updateOne({'id' : id}, {$set:{'type' : type}}, null,
 		function(err, result) {
 			assert.equal(err, null);
 			assert.equal(1, result.result.n);
@@ -86,6 +108,7 @@ exports.setSensorDescription = function(id, desc, cb){
 
 
 exports.setSensorFlag = function(id, flag, cb){
+	var newFlag = parseInt(flag);
 
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
@@ -93,7 +116,7 @@ exports.setSensorFlag = function(id, flag, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.updateOne({'id' : id}, {'flag' : flag}, null,
+		collection.updateOne({'id' : id}, {$set: {'flag' : newFlag}}, null,
 		function(err, result) {
 			assert.equal(err, null);
 			assert.equal(1, result.result.n);
@@ -131,7 +154,7 @@ exports.insertData = function(timestamp, sensor, /*type,*/ data, cb){
 
 }
 
-exports.getSensors = function(){
+exports.getSensors = function(cb){
     MongoClient.connect(url, function(err, db) {
         assert.equal(null, err);
         console.log("Connected successfully to the database.")
@@ -149,7 +172,7 @@ exports.getSensors = function(){
     });
 }
 
-exports.getSensorData = function(sensor, tsfrom, tsto){
+exports.getSensorData = function(sensor, /*tsfrom, tsto,*/ cb){
 
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
@@ -157,13 +180,13 @@ exports.getSensorData = function(sensor, tsfrom, tsto){
 
 		var collection = db.collection('data');
 		// Insert some documents
-		collection.find({'sensor' : sensor, 'timestamp' : {$gt : tsfrom, $lt : tsto}}.toArray(function(err, docs) {
+		collection.find({'sensor' : sensor/*, 'timestamp' : {$gt : tsfrom, $lt : tsto}*/}).toArray(function(err, docs) {
 			assert.equal(err, null);
-			console.log("Inserted 1 document into the collection");
+			console.log("Fetched sensor data");
 
 			if(typeof cb !== 'undefined')
 				cb(docs);
-		}));
+		});
 
 		db.close();
 	});

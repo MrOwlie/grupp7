@@ -1,0 +1,60 @@
+sudo apt-get dist-upgrade
+sudo apt-get update
+sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev libkrb5-dev build-essential apt-transport-https ca-certificates
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
+sudo apt-get install linux-image-extra-$(uname -r) linux-image-extra-virtual
+sudo apt-get install docker-engine
+sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.10.0/docker-compose-$(uname -s)-$(uname -m)"
+sudo chmod +x /usr/local/bin/docker-compose
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+cd /usr/src
+sudo wget https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz
+sudo tar xzf Python-2.7.13.tgz
+cd Python-2.7.13/
+sudo ./configure
+sudo make install
+cd
+curl -O https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
+tar xvf go1.7.4.linux-amd64.tar.gz
+sudo chown -R root:root ./go
+sudo mv go /usr/local
+sudo nano ~/.profile
+export GOPATH=$HOME/work
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+source ~/.profile
+nvm install 6.9.4
+nvm use 6.9.4
+nvm alias default 6.9.4
+mkdir work
+mkdir mytest
+mkdir hyperledge
+cd work
+mkdir src
+cd src
+mkdir github.com
+cd github.com
+mkdir fabric
+git clone https://github.com/hyperledger/fabric
+cd ~/hyperledge
+curl -o docker-compose.yml https://raw.githubusercontent.com/hyperledger/fabric/master/examples/sdk/node/docker-compose.yml
+curl -o Dockerfile https://raw.githubusercontent.com/hyperledger/fabric/master/examples/sdk/node/Dockerfile
+sudo usermod -aG docker $USER
+npm install /opt/gopath/src/github.com/hyperledger/fabric/sdk/node
+npm install -g npm
+npm clean cache
+npm install -g node-gyp
+npm clean cache
+sudo nano Dockerfile
+run npm hfc@0.6.x
+docker build -t hyperledger/fabric-starter-kit:latest . ## run command from node folder
+docker-compose up -d
+docker ps
+docker exec -it starter /bin/bash
+exit
+docker run --rm -it -e CORE_VM_ENDPOINT=http://172.17.0.1:2375 -e CORE_LOGGING_LEVEL=DEBUG -e CORE_PEER_ID=vp0 -e CORE_PEER_ADDRESSAUTODETECT=true hyperledger/fabric-peer peer node start
+
+sudo sh -c https://apt.dockerproject.org/repo ubuntu-xenial main > /etc/apt/sources.list.d/docker.list'
+
+sudo echo deb https://apt.dockerproject.org/repo ubuntu-xenial main >> /etc/apt/sources.list.d/docker.list

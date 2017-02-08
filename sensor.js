@@ -4,15 +4,25 @@ exports.newSensor = function(chain, sensorName, datatype ) {
    // If this user has already been registered and/or enrolled, this will
    // still succeed because the state is kept in the KeyValStore
    // (i.e. in '/tmp/keyValStore' in this sample).
-   var registrationRequest = {
+   chain.getMember(sensorName, function(err, sensor){
+		if(err){
+			return console.log("Error retreiving sensor at sensor submit AJAX");
+		}
+
+		if(!sensor.isRegistered() && !sensor.isEnrolled()){
+			var registrationRequest = {
 			// Sensor is a 'solution user' which should not have any roles, i think
 	         roles: [  ],
 	         enrollmentID: sensorName,
 	         affiliation: 'bank_a', //'bank_a' is pre registered, how to register own groups?
 	         attributes: [{name:'type',value:'sensor'},{name:'datatype',value:datatype}]
-	    };
-   chain.registerAndEnroll( registrationRequest, function(err, user) {
-      if (err) return console.log("ERROR: %s",err);
-		else console.log(sensorName +" registered");
+			};
+			
+		   chain.registerAndEnroll( registrationRequest, function(err, user) {
+			  if (err) return console.log("ERROR: %s",err);
+				else console.log(sensorName +" registered");
+		   });
+		}
+		
    });
 }

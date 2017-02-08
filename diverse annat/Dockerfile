@@ -5,6 +5,7 @@ RUN npm install hfc
 # install mongodb driver for the application
 RUN npm install mongodb --save
 RUN npm install express
+RUN npm install body-parser
 # update the hyperledger source ,for building go files
 WORKDIR $GOPATH/src/github.com/hyperledger
 RUN rm -rf ./fabric
