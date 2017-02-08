@@ -38,7 +38,7 @@ exports.sensorExists = function(id, cb){
 
 }
 
-exports.insertSensor = function(id, flag, cb){
+exports.insertSensor = function(id, flag, desc, cb){
 
 	MongoClient.connect(url, function(err, db) {
 		assert.equal(null, err);
@@ -46,7 +46,7 @@ exports.insertSensor = function(id, flag, cb){
 
 		var collection = db.collection('sensors');
 		// Insert some documents
-		collection.insertOne({'id' : id, 'flag' : flag, 'desc' : ''},
+		collection.insertOne({'id' : id, 'flag' : flag, 'desc' : desc},
 		function(err, result) {
 			assert.equal(err, null);
 			assert.equal(1, result.insertedCount);
