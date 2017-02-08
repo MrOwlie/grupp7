@@ -36,7 +36,7 @@ exports.sensorSubmit = function(chain, db, req, res) {
 				// res.end('{"response":"error"}');
 			// });
 
-			sensorInvoke(sensor, "temperature", "write", [[]byte("sensID"), []byte("date")],
+			sensorInvoke(sensor, "temperature", "write", {sensID, date},
 			function(result){ //completion handler
 
 				db.insertData(/*date*/new Date(), sensID, data);
