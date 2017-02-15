@@ -14,7 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
           body {
-            background-image: url("views/Blue.png");
+            background-image: url("http://www.thewallpapers.org/photo/57340/blue(2).jpg");
           }
           .carousel {
             margin-top: -5px;
@@ -112,15 +112,17 @@
             <table class="table">
                         <thead>
                             <tr>
-                                <th class="col-md-5">ID Hash</th>
-                                  <th class="col-md-4">Description</th>
-                                  <th class="col-md-2">Type</th>
-                                  <th class="col-md-1" style="padding-left: 10px;">Block</th>
+                              <th class="col-md-3">ID Hash</th>
+                              <th class="col-md-3">Description</th>
+                              <th class="col-md-2">Last Request Time</th>
+                              <th class="col-md-2">Type</th>
+                              <th class="col-md-2" style="padding-left: 10px;">Block</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% activeTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <%= row; %>
                             <% }); %>
                         </tbody>
                   </table>
@@ -133,16 +135,18 @@
             <table class="table">
                         <thead>
                             <tr>
-                                <th class="col-md-5">ID Hash</th>
-                                  <th class="col-md-3">Description</th>
-                                  <th class="col-md-2">Last Request Time</th>
-                                  <th class="col-md-1" style="padding-left: 10px;">Activate</th>
-                                  <th class="col-md-1">Block</th>
+                              <th class="col-md-3">ID Hash</th>
+                              <th class="col-md-3">Description</th>
+                              <th class="col-md-2">Last Request Time</th>
+                              <th class="col-md-2">Type</th>
+                              <th class="col-md-1" style="padding-left: 10px;">Activate</th>
+                              <th class="col-md-1">Block</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% queuedTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <%- row; %>
                             <% }); %>
                         </tbody>
                   </table>
@@ -155,15 +159,17 @@
             <table class="table">
                         <thead>
                             <tr>
-                                <th class="col-md-5">ID Hash</th>
-                                  <th class="col-md-3">Description</th>
-                                  <th class="col-md-3">Last Request Time</th>
-                                  <th class="col-md-1" style="padding-left: 10px;">Activate</th>
+                              <th class="col-md-3">ID Hash</th>
+                              <th class="col-md-3">Description</th>
+                              <th class="col-md-2">Last Request Time</th>
+                              <th class="col-md-2">Type</th>
+                              <th class="col-md-2" style="padding-left: 10px;">Activate</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% blockedTableArray.forEach(function(row) { %>
-                                <% row %>
+                                <% console.log(row); %>
+                                <% row; %>
                             <% }); %>
                         </tbody>
                   </table>

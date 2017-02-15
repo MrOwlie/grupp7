@@ -40,29 +40,39 @@ app.post('/submit', function(req, res){
 });
 
 app.get('/sensors', function(req, res){
-	sensors = database.getSensors();
+  var activeTableArray = [];
+  var queuedTableArray = [];
+  var blockedTableArray = [];
+  database.getSensors(function(docs){
+  
+  console.log(docs);
+    for (item in docs) {
 
-	var activeTableArray = [];
-	var queuedTableArray = [];
-	var blockedTableArray = [];
+      console.log(item);
 
-	for (item in sensors) {
-		json = bson.deserialize(item)
-		jsonObject = JSON.parse(json)
-		if (jsonObject.flag == 'Active'){
-			activeTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> " + jsonObject.desc + " </td> <td> TempSensor </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-		}else if(jsonObject.flag == 'Queued'){
-			queuedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-		}else if(jsonObject.flag == 'Blocked'){
-			blockedTableArray.push("<tr> <td> " + jsonObject.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> </tr>")
-		}
-	}
+      if (item.flag == 2){
+        console.log("2");
+        activeTableArray.push("<tr> <td> " + item.id + " </td> <td> " + item.desc + " </td> <td> TempSensor </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
+      }else if(item.flag == 1){
+        console.log("1");
+        queuedTableArray.push("<tr> <td> " + item.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
+      }else if(item.flag == 3){
+        console.log("3");
+        blockedTableArray.push("<tr> <td> " + item.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> </tr>")
+      }
+    }
+    console.log(activeTableArray);
+    console.log(queuedTableArray);
+    console.log(blockedTableArray);
+    res.render('sensor', {
+  		activeTableArray : activeTableArray,
+  		queuedTableArray : queuedTableArray,
+  		blockedTableArray : blockedTableArray
 
-	res.render('sensor', {
-		activeTableArray : activeTableArray,
-		queuedTableArray : queuedTableArray,
-		blockedTableArray : blockedTableArray
-	});
+    });
+  });
+
+
 });
 
 app.get('/addSensor', function(req, res){
