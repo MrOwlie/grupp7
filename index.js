@@ -154,7 +154,7 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-	deploy(webAppAdmin, "temperature", "Init", [], "./chaincode");
+	deploy(webAppAdmin, "test", "Init", ["jesper", "12", "hans", "10"], "./chaincode");
 
 
    // Now begin listening for web app requests

@@ -41,11 +41,11 @@ webapp:
     - KEY_VALUE_STORE=/tmp/hl_sdk_node_key_value_store
     # set to following to 'dev' if peer running in Developer mode
     - DEPLOY_MODE=dev
-    - CORE_CHAINCODE_ID_NAME=mycc
+    - CORE_CHAINCODE_ID_NAME=test
     - CORE_PEER_ADDRESS=peer:7051
     - DATABASE_URL=mongodb://mongo:27017/HyperIOT
   # the following command will start the chain code when this container starts and ready it for deployment by the app
-  command: sh -c "sleep 20; cd /app/src; rm -r -f *; rm -r -f .git; git clone https://github.com/mrowlie/grupp7.git .; npm install; /app/src/chaincode/temperature; node index.js"
+  command: sh -c "sleep 20; /app/src/chaincode/test"
   stdin_open: true
   tty: true
   links:

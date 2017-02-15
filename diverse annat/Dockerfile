@@ -6,7 +6,9 @@ RUN npm install hfc
 RUN npm install mongodb --save
 RUN npm install express
 RUN npm install body-parser
-# update the hyperledger source ,for building go files
-WORKDIR $GOPATH/src/github.com/hyperledger
-RUN rm -rf ./fabric
-RUN git clone http://gerrit.hyperledger.org/r/fabric
+RUN npm install ejs
+RUN npm install bson
+# update the hyperledger source ,for building go files --- commented now because results in version mismatch with peer when running chaincode
+#WORKDIR $GOPATH/src/github.com/hyperledger
+#RUN rm -rf ./fabric
+#RUN git clone http://gerrit.hyperledger.org/r/fabric

@@ -36,7 +36,7 @@ exports.sensorSubmit = function(chain, db, req, res) {
 				// res.end('{"response":"error"}');
 			// });
 			
-			sensorQuery(sensor, "temperature", "read", [],
+			sensorQuery(sensor, "test", "query", ["hans"],
 			function(result){ //completion handler
 
 				db.insertData(/*date*/new Date(), sensID, data);
