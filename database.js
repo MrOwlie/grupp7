@@ -12,6 +12,48 @@ var MongoClient = require('mongodb').MongoClient
 
 	  // db.close();
 	// });
+	
+exports.setSystemKeyVal = function(key, val, cb){
+
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to database");
+
+		var collection = db.collection('system');
+		// Insert some documents
+		collection.findOneAndReplace({'key' : key}, {'key': key, 'val' : val}, {upsert : true}, function(err, doc) {
+			assert.equal(err, null);
+			
+			console.log("Updated 1 document in the collection");
+			if(typeof cb !== 'undefined')
+				cb(doc);
+		});
+		
+		db.close();
+	});
+
+}
+
+exports.getSystemKeyVal = function(key, cb){
+
+	MongoClient.connect(url, function(err, db) {
+		assert.equal(null, err);
+		console.log("Connected successfully to database");
+
+		var collection = db.collection('system');
+		// Insert some documents
+		collection.find({'key' : key}).limit(1).toArray(function(err,docs){
+			assert.equal(err, null);
+			console.log("Retrived 1 document in the collection");
+
+			if(typeof cb !== 'undefined')
+				cb(docs);
+		});
+
+		db.close();
+	});
+
+}
 
 exports.sensorExists = function(cid, cb){
 
