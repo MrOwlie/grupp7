@@ -1,146 +1,93 @@
+//First iteration of temperature chaincode.
+
 package main
 
-import "fmt"
-//import "errors"
-//import strconv
-import "github.com/hyperledger/fabric/accesscontrol/impl"
-import "github.com/hyperledger/fabric/core/chaincode/shim"
-import pb "github.com/hyperledger/fabric/protos/peer"
+import (
+	"errors"
+	"fmt"
+	"strconv"
+    "encoding/json"
 
-//Init is called when you first deploy your chaincode. As the name implies, this function should be used to do any initialization your chaincode needs.
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+)
 
-
-type TempChaincode struct {
-
-}
-
-func (t *TempChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
-    _, args := stub.GetFunctionAndParameters()
-    if len(args) != 0 {
-        return shim.Error("Invalid number of arguments, expected 0.")
-    }
-
-    return shim.Success(nil)
+// TemperatureChaincode
+type TemperatureChaincode struct {
 }
 
 
-//Invoke is called when you want to call chaincode functions to do real work.
-//Invocations will be captured as a transactions, which get grouped into blocks on the chain.
-//When you need to update the ledger, you will do so by invoking your chaincode.
-//Blocks are added to the chain when this function is called.
-func (t *TempChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-    function, _ := stub.GetFunctionAndParameters()
-    //handle init function
-    if function == "init" {
-        fmt.Println("invoke is running init")
-        return t.Init(stub)
-    }
+//This function will be executed by the chaincode when it is first deployed.
+//I don't think we need any kind of initialization yet. Therefore we take 0 arguments and return nil, nil if that is the case.
+func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	if len(args) != 0 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 4")
+	}
 
-    //val, err :=
-    _, err := impl.NewAccessControlShim(stub).ReadCertAttribute("type")
-
-    if err != nil{
-        return shim.Error("Could not read cert attribute type")
-    }
-
-    isOk, _ := impl.NewAccessControlShim(stub).VerifyAttribute("type", []byte("sensor")) // Here the ABAC API is called to verify the attribute, just if the value is verified the counter will be incremented.
-
-
-    //Only proceed if the invoker is of type "sensor".
-    if isOk{
-        fmt.Println("invoke is running " + function)
-
-        // Handle write function
-        if function == "write" {
-            return t.write(stub)
-        } else {
-            return shim.Error("Received unknown function invocation: " + function)
-        }
-        return shim.Error("invoke did not find func: " + function)
-    } else {
-        return shim.Error("Authentication failed for invocation.")
-    }
-    return shim.Success(nil)
+	return nil, nil
 }
 
-
-
-//This function is used to query the chain code. It redirects the request to a helper function that will handle the specific request.
-//Blocks are not added to the chain when this function is called.
-func (t *TempChaincode) Query(stub shim.ChaincodeStubInterface) pb.Response {
-    function, _ := stub.GetFunctionAndParameters()
-    val, err := impl.NewAccessControlShim(stub).ReadCertAttribute("type")
+//Called when someone is trying to perform a transaction to change the state.
+//When adding a policy to allow queries for temperature data, append ("temperature", true) to the policy JSON.
+func (t *TemperatureChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+    caller, err := stub.GetCallerMetadata()
     if err != nil {
-        fmt.Printf("Position => %v error %v \n", string(val), err)
+        return nil, errors.New("Could not fetch caller metadata.")
     }
-    isOk, _ := impl.NewAccessControlShim(stub).VerifyAttribute("type", []byte("3rdParty")) // Here the ABAC API is called to verify the attribute, just if the value is verified the counter will be incremented.
-
-    if isOk {
-        fmt.Println("query is running " + function)
-
-        // Handle function
-        if function == "read" {                            //read a variable
-            return t.read(stub)
-        } else {
-            return shim.Error("Received unknown function query: " + function)
+    fmt.Println(caller)
+    if caller == "WebAppAdmin" {
+        switch function {
+        case "removePolicy":
+            if len(args) != 1 {
+                return nil, errors.New("Wrong number of arguments for function " + function + ", expected 1 but recieved " + len(args) + ".")
+            }
+            fmt.Println("Deleting policy for user: " + args[0] + ".")
+            return t.delete(stub, args)
+        case "addPolicy":
+            fmt.Println("Inserting new policy for user: " + arg[0] + ".")
+            err = stub.PutState(arg[0], arg[1])
+            if err != nil {
+                return nil, errors.New("Error occurred when trying to PutState(" + arg[0] + ", " + arg[1] + ").")
+            }
+        default:
+            return nil, errors.New("Function: " + function + " was not found.")
         }
-
-
-    } else {
-       return shim.Error("Request could not be authenticated")
     }
 
-    return shim.Success(nil)
+    //should a user ever be able to invoke something on the state???
+
+
+
+
+	return nil, nil
 }
 
+// Query callback representing the query of a chaincode
+func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+    caller, err := stub.GetCallerMetadata()
 
+    if len(args != 0) {
+        return nil, errors.New("Queries does not take any arguments. Recieved " + len(args) + ".")
+    }
 
-//Runs when a peer deploys their instance of the chaincode
+    policyString, err := stub.GetState(caller)
+    policy map[string]interface{}
+    policy, err := json.Unmarshal(policyString)
+
+    switch function {
+    case "temperature":
+        if policy[temperature] == true {
+            return []byte(true), errors.New("")
+        }
+    default:
+        return []byte(false), errors.New("Function: " + function + " was not found.")
+    }
+
+    return nil, nil
+}
+
 func main() {
-  err := shim.Start(new(TempChaincode))
-  if (err != nil) {
-    fmt.Printf("Error starting temperature chaincode: %s", err)
-  }
-}
-
-
-//helper function, writes a value to a key on the chaincode state with PutState(Key, Value)
-//takes 2 arguments, Key: SensorID, Value: Permission type
-func (t *TempChaincode) write(stub shim.ChaincodeStubInterface) pb.Response {
-    _, args := stub.GetFunctionAndParameters()
-    var key, value string
-    var err error
-    fmt.Println("running write()")
-
-    if {
-        return shim.Error("Incorrect number of arguments. Expecting 2!")
-    }
-
-    key = args[0]
-    value = args[1]
-    err = stub.PutState(key, []byte(value))  //write the variable into the chaincode state
-    if err != nil {
-        return shim.Error(err.Error())
-    }
-    return shim.Success(nil)
-}
-
-//helper function, reads a value from key with GetState(key)
-//takes 1 argument, Key: SensorID
-func (t *TempChaincode) read(stub shim.ChaincodeStubInterface) pb.Response {
-    _, args := stub.GetFunctionAndParameters()
-    var key string
-
-    if len(args) != 1 {
-        return shim.Error("Incorrect number of arguments. Expecting name of the key to query!")
-    }
-
-    key = args[0]
-    valAsBytes, err := stub.GetState(key)
-    if err != nil{
-        return shim.Error("Failed to get state for " + key + ".")
-    }
-
-    return shim.Success(valAsBytes)
-
+	err := shim.Start(new(TemperatureChaincode))
+	if err != nil {
+		fmt.Printf("Error starting Temperature chaincode: %s", err)
+	}
 }
