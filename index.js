@@ -1,6 +1,7 @@
 // library for handling sensors
 var sensor = require('./sensor');
 
+//BEGIN--System-libraries-initialization--
 var express = require('express');
 var app = express()
 var bodyParser = require('body-parser');
@@ -11,6 +12,9 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 //tror inte denna ska användas när vi kör ejs, låter den ligga som kommentar ifall att
 //app.use(express.static(__dirname + '/html')); //static path to html files
+
+//static path for static files such as images
+app.use(express.static(__dirname + '/public'));
 
 var ejs = require('ejs')
 var hfc = require('hfc');
@@ -25,45 +29,58 @@ var https = require('https');
 var database = require('./database');
 
 app.set('view engine', 'ejs');
+//END--System-libraries-initialization--
+
+//initialize connection to peer
 startupHyperledger();
 
 
-
-app.get('/', function(req, res){
-	database.getSensorData("Test10", function(docs){console.log(JSON.stringify(docs));});
-	res.sendFile(__dirname + '/html/sensors.html');
-});
 
 app.post('/submit', function(req, res){
 	res.header("Access-Control-Allow-Origin", "*");
 	AJAX.sensorSubmit(chain, database, req, res);
 });
+//BEGIN--/(index)--------
+app.get('/', function(req, res){
+	res.render('home');
+});
+//END--/(index)--------
 
-app.get('/sensors', function(req, res){
-  var activeTableArray = [];
+//BEGIN--/sensors--------
+app.get('/sensors', renderSensorHTML);
+
+app.post('/sensors', function(req, res){
+	var ac = req.body.activate;
+	var blo = req.body.block;
+	
+	if(ac){
+		sensor.newSensor(chain, ac, "temperature");
+		var a = database.setSensorFlag(ac, 2);
+	}
+	else if(blo){
+		var b = database.setSensorFlag(blo, 3);
+	}
+	
+	renderSensorHTML(req, res);
+		
+});
+function renderSensorHTML(req, res){
+	var activeTableArray = [];
   var queuedTableArray = [];
   var blockedTableArray = [];
   database.getSensors(function(docs){
-  
-  console.log(docs);
-    for (item in docs) {
 
-      console.log(item);
+    docs.forEach(function(sens){
 
-      if (item.flag == 2){
-        console.log("2");
-        activeTableArray.push("<tr> <td> " + item.id + " </td> <td> " + item.desc + " </td> <td> TempSensor </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-      }else if(item.flag == 1){
-        console.log("1");
-        queuedTableArray.push("<tr> <td> " + item.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> <td> <button class='btn btn-sm btn-danger' type='submit' name='block'>Block</button> </td> </tr>")
-      }else if(item.flag == 3){
-        console.log("3");
-        blockedTableArray.push("<tr> <td> " + item.id + " </td> <td> LAST </td> <td> LAST REQUEST </td> <td> <button class='btn btn-sm btn-success' type='submit' name='activate'>Block</button> </td> </tr>")
+      if (sens.flag == 2){
+        activeTableArray.push(sens)
+      }else if(sens.flag == 1){
+        queuedTableArray.push(sens)
+      }else if(sens.flag == 3){
+        blockedTableArray.push(sens)
       }
-    }
-    console.log(activeTableArray);
-    console.log(queuedTableArray);
-    console.log(blockedTableArray);
+    });
+	
     res.render('sensor', {
   		activeTableArray : activeTableArray,
   		queuedTableArray : queuedTableArray,
@@ -71,9 +88,14 @@ app.get('/sensors', function(req, res){
 
     });
   });
+}
+//END--/sensors--------
 
-
+//BEGIN--/about--------
+app.get('/about', function(req, res){
+	res.render('about');
 });
+//END--/about--------
 
 app.get('/addSensor', function(req, res){
   res.render('addsensor');
@@ -164,7 +186,16 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-	deploy(webAppAdmin, "test", "Init", ["jesper", "12", "hans", "10"], "./chaincode");
+   
+   database.getSystemKeyVal("deployed", function(docs){
+	  if(docs.length != 1 || docs[0].val != "true"){
+		  deploy(webAppAdmin, "test", "Init", ["jesper", "12", "hans", "10"], "./chaincode");
+		  database.setSystemKeyVal("deployed", "true");
+	  }
+	  else
+		  console.log("Chaincode already deployed, moving on....")
+   });
+	
 
 
    // Now begin listening for web app requests
