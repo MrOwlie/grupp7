@@ -100,7 +100,21 @@ function renderSensorHTML(req, res){
 
 //BEGIN--/sensorSettings--------
 app.get('/sensorSettings', function(req, res){
-	res.render('sensorsetting');
+	res.render('sensorsetting', {sensor : req.query.id});
+});
+
+app.post('/sensorSettings', function(req, res){
+	var ac = req.body.activate;
+	var blo = req.body.block;
+	
+	if(ac){
+			sensor.newSensor(chain, ac, "temperature");
+			var a = database.setSensorFlag(ac, 2);
+	}
+	else if(blo){
+		var b = database.setSensorFlag(blo, 3);
+	}
+	res.redirect('sensors');
 });
 //END--/sensorSettings--------
 
