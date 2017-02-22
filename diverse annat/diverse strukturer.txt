@@ -1,11 +1,9 @@
 
 //Policy structure RocksDB[userCert] points to a string encoded JSON object containing the policies.
-RocksDB[userCert] = "
+RocksDB[string(userCert)] = []byte("
 {
-	insert: {
-			allowed: true
-		},
+	insertPermission: true,
 	groups: ['temp', 'water']
 
 }
-"
+")

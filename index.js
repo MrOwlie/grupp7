@@ -52,7 +52,7 @@ app.get('/sensors', renderSensorHTML);
 app.post('/sensors', function(req, res){
 	var ac = req.body.activate;
 	var blo = req.body.block;
-	
+
 	if(ac){
 		sensor.isEnrolled(chain, ac, function(result){
 			if(result){
@@ -69,7 +69,7 @@ app.post('/sensors', function(req, res){
 		var b = database.setSensorFlag(blo, 3);
 		renderSensorHTML(req, res);
 	}
-		
+
 });
 function renderSensorHTML(req, res){
 	var activeTableArray = [];
@@ -87,7 +87,7 @@ function renderSensorHTML(req, res){
         blockedTableArray.push(sens)
       }
     });
-	
+
     res.render('sensor', {
   		activeTableArray : activeTableArray,
   		queuedTableArray : queuedTableArray,
@@ -106,7 +106,7 @@ app.get('/sensorSettings', function(req, res){
 app.post('/sensorSettings', function(req, res){
 	var ac = req.body.activate;
 	var blo = req.body.block;
-	
+
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
 			var a = database.setSensorFlag(ac, 2);
@@ -213,16 +213,16 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-   
+
    database.getSystemKeyVal("deployed", function(docs){
 	  if(docs.length != 1 || docs[0].val != "true"){
-		  deploy(webAppAdmin, "test", "Init", ["jesper", "12", "hans", "10"], "./chaincode");
+		  deploy(webAppAdmin, "temperature", "Init", [], "./chaincode");
 		  database.setSystemKeyVal("deployed", "true");
 	  }
 	  else
 		  console.log("Chaincode already deployed, moving on....")
    });
-	
+
 
 
    // Now begin listening for web app requests
