@@ -24,7 +24,8 @@
                               <th class="col-md-3">Description</th>
                               <th class="col-md-2">Last Request Time</th>
                               <th class="col-md-2">Type</th>
-                              <th class="col-md-2" style="padding-left: 10px;">Block</th>
+                              <th class="col-md-1" style="padding-left: 10px;">Block</th>
+							  <th class="col-md-1">Settings</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,6 +45,9 @@
 								</td>
 								<td>
 									<button class="btn btn-sm btn-danger" type="submit" name="block" value="<%= row.id; %>">Block</button>
+								</td>
+								<td>
+									<a href="sensorSettings?id=<%= row.id; %>"><img src="setting.png" alt="Alter" height="30" width="30"/></a>
 								</td>
 							</tr>
                             <% }); %>

@@ -26,3 +26,16 @@ exports.newSensor = function(chain, sensorName, datatype ) {
 		
    });
 }
+
+exports.isEnrolled = function(chain, sensorName, cb){
+	chain.getMember(sensorName, function(err, sensor){
+		if(err){
+			return console.log("Error retreiving sensor at sensor submit AJAX");
+		}
+		if(sensor.isRegistered() && sensor.isEnrolled())
+			cb(true);
+		else
+			cb(false);
+
+	});
+}

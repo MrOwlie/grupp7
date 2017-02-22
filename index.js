@@ -54,14 +54,21 @@ app.post('/sensors', function(req, res){
 	var blo = req.body.block;
 	
 	if(ac){
-		sensor.newSensor(chain, ac, "temperature");
-		var a = database.setSensorFlag(ac, 2);
+		sensor.isEnrolled(chain, ac, function(result){
+			if(result){
+			//sensor.newSensor(chain, ac, "temperature");
+			var a = database.setSensorFlag(ac, 2);
+			renderSensorHTML(req, res);
+			}
+			else{
+				res.redirect('sensorSettings?id='+ac);
+			}
+		});
 	}
 	else if(blo){
 		var b = database.setSensorFlag(blo, 3);
+		renderSensorHTML(req, res);
 	}
-	
-	renderSensorHTML(req, res);
 		
 });
 function renderSensorHTML(req, res){
@@ -90,6 +97,26 @@ function renderSensorHTML(req, res){
   });
 }
 //END--/sensors--------
+
+//BEGIN--/sensorSettings--------
+app.get('/sensorSettings', function(req, res){
+	res.render('sensorsetting', {sensor : req.query.id});
+});
+
+app.post('/sensorSettings', function(req, res){
+	var ac = req.body.activate;
+	var blo = req.body.block;
+	
+	if(ac){
+			sensor.newSensor(chain, ac, "temperature");
+			var a = database.setSensorFlag(ac, 2);
+	}
+	else if(blo){
+		var b = database.setSensorFlag(blo, 3);
+	}
+	res.redirect('sensors');
+});
+//END--/sensorSettings--------
 
 //BEGIN--/about--------
 app.get('/about', function(req, res){

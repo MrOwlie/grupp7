@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <%- include("head", {title: "Sensors"}); %>
+  <body>
+    <%- include("nav", {active: "none"}); %>
+    <div class="container">
+	<form method="POST">
+      <ul class="nav nav-tabs">
+        <li class="active tabhead"><a data-toggle="tab" href="#active">Information</a></li>
+        <li class="tabhead"><a data-toggle="tab" href="#queue">Policy</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="active" class="tab-pane fade in active">
+          <h3 style="font-size: 26px; margin-left: 20px;"><u><%= sensor %>:</u></h3>
+          <hr>
+
+			<div>
+				<h4>Description</h4>
+				<textarea name="description"></textarea>
+			</div>
+			<hr/>
+
+        </div>
+        <div id="queue" class="tab-pane fade">
+          <h3 style="font-size: 26px; margin-left: 20px;"><u><%= sensor %>:</u></h3>
+          <hr>
+          <div>
+				<h3>Write</h3>
+				<h4>Data type</h4>
+				<select name="dataType">
+					<option>None</option>
+					<option>Temperature</option>
+				</select>
+			</div>
+			<hr/>
+			<div>
+				<h3>Read</h3>
+				<h4>Data type</h4>
+				<select name="dataType">
+					<option>None</option>
+					<option>Temperature</option>
+				</select>
+			</div>
+			<hr/>
+        </div>
+        
+
+      </div>
+	  
+	  <div class="" style="text-align: right; margin-top: 20px;">
+           <td><button class="btn btn-sm btn-success" type="submit" name="activate" value="<%= sensor %>">Activate</button></td>
+  							  <td><button class="btn btn-sm btn-danger" type="submit" name="block" value="<%= sensor %>">Block</button></td>
+			    </div>
+	  
+	</form>
+    </div><!-- /container -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
+
