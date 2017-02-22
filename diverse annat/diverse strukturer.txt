@@ -4,10 +4,8 @@ RocksDB[userCert] = "
 {
 	insert: {
 			allowed: true
-		}
-	retrieve: {
-			groups : ['tempInsert', 'tempFetch', 'waterInsert', 'waterFetch']
-		  }
-	
+		},
+	groups: ['temp', 'water']
+
 }
 "
