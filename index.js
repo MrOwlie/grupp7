@@ -110,7 +110,11 @@ app.post('/sensorSettings', function(req, res){
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
 			var a = database.setSensorFlag(ac, 2);
-	}
+      chain.getMember("sensor01", function(err, member){
+        userInvoke("WebAppAdmin", "temperature", "addPolicy", [member, "{ insert: { allowed: true }, groups: ['temp', 'water'] }"]);
+
+      });
+  }
 	else if(blo){
 		var b = database.setSensorFlag(blo, 3);
 	}
@@ -131,6 +135,7 @@ app.get('/addSensor', function(req, res){
 app.get('/new', function(req, res){
 	res.send('new sensor');
 	sensor.newSensor(chain, "test", "temperature");
+  registerAndEnroll()
 });
 
 app.get('/test', function(req, res){
@@ -154,7 +159,7 @@ app.post('/ajax/setDescription', function(req, res){
 app.post('/ajax/setFlag', function(req, res){
 	if(parseInt(req.body.flag) == 2)
 		sensor.newSensor(chain, req.body.id, "temperature");
-	database.setSensorFlag(req.body.id, req.body.flag, function(){
+	  database.setSensorFlag(req.body.id, req.body.flag, function(){
 		res.end('{"response":"success"}');
 	});
 });
