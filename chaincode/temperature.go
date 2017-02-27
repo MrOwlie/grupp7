@@ -21,10 +21,12 @@ type TemperatureChaincode struct {
 //I don't think we need any kind of initialization yet. Therefore we take 0 arguments and return nil, nil if that is the case.
 func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	adminCert, err := stub.GetCallerMetadata()
+	fmt.Println("This is the adminCert: " + adminCert)
 	if err != nil {
 		return nil, errors.New("Could not get caller metadata.")
 	}
 	if len(adminCert) == 0 {
+		fmt.Println("This is the adminCert: " + adminCert)
 		return nil, errors.New("Invalid admin certificate, it was empty.")
 	}
 	stub.PutState("admin", adminCert)

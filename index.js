@@ -119,14 +119,10 @@ app.post('/sensorSettings', function(req, res){
 	//req.body.newgrps = JSON string of array with groups to be added in
 	//req.body.delgrps = JSON string of array with groups to be removed from
 	//req.body.policy = JSON string of the entire policy
-	
+
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
 			var a = database.setSensorFlag(ac, 2);
-      chain.getMember("sensor01", function(err, member){
-        userInvoke("WebAppAdmin", "temperature", "addPolicy", [member, "{ insert: { allowed: true }, groups: ['temp', 'water'] }"]);
-
-      });
   }
 	else if(blo){
 		var b = database.setSensorFlag(blo, 3);
@@ -148,7 +144,6 @@ app.get('/addSensor', function(req, res){
 app.get('/new', function(req, res){
 	res.send('new sensor');
 	sensor.newSensor(chain, "test", "temperature");
-  registerAndEnroll()
 });
 
 app.get('/test', function(req, res){
