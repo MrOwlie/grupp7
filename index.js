@@ -100,13 +100,26 @@ function renderSensorHTML(req, res){
 
 //BEGIN--/sensorSettings--------
 app.get('/sensorSettings', function(req, res){
-	res.render('sensorsetting', {sensor : req.query.id});
+	if(req.query.id.length > 0){
+		sensor.isEnrolled(chain, req.query.id, function(itis){
+			if(itis){
+				//check policies
+				res.render('sensorsetting', {sensor : req.query.id, policy_string: "something", groups: ["existing", "exists"]});
+			}
+			else
+				res.render('sensorsetting', {sensor : req.query.id, policy_string: false, groups: ["existing", "exists"]});
+		});
+	}
 });
 
 app.post('/sensorSettings', function(req, res){
 	var ac = req.body.activate;
 	var blo = req.body.block;
-
+	//req.body.description = text string with description
+	//req.body.newgrps = JSON string of array with groups to be added in
+	//req.body.delgrps = JSON string of array with groups to be removed from
+	//req.body.policy = JSON string of the entire policy
+	
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
 			var a = database.setSensorFlag(ac, 2);

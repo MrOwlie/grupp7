@@ -2,6 +2,88 @@
 <html lang="en">
   
   <%- include("head", {title: "Sensors"}); %>
+  
+  <script type="text/javascript">
+  
+	$(function(){
+	
+		setupGrpAdder("#group_adder_btn", "#group_adder", "#group_container", "#inpnewgrps", "#inpdelgrps");
+		
+		$("#pol_group_adder_btn").on("click", function(){
+			var newgrp = $("#pol_group_adder").val();
+			if(newgrp && $("#pol_group_container"+" [data-grp="+newgrp+"]").length == 0){
+				$("#pol_group_container").append('<div data-grp="'+newgrp+'">'+newgrp+'<button type="button" class="pol_group_delete">Delete</button></div>');
+			}
+			else
+				alert("New groups cannot be blank or existing ones!");
+		});
+		
+		$(document).on("click", ".pol_group_delete", function(){			
+			$(this).parent().remove();		
+		});
+		
+		
+	
+	});
+	
+	function listNewGrps(cont, hidinp){
+		var groups = $(cont+" > [data-status=new]").map(function(){
+				return $(this).attr("data-grp");
+			}).get();
+			$(hidinp).val(groups.length > 0 ? JSON.stringify(groups):"");
+	}
+	
+	function setupGrpAdder(btn, inp, target, hidnew, hiddel){
+		$(btn).on("click", function(){
+			var newgrp = $(inp).val();
+			if(newgrp && $(target+" [data-grp="+newgrp+"]").length == 0){
+				$(target).append('<div data-status="new" data-grp="'+newgrp+'">'+newgrp+'<button type="button" class="group_delete">Delete</button></div>');
+			}
+			else
+				alert("New groups cannot be blank or existing ones!");
+				
+			listNewGrps(target, hidnew);
+		});
+		
+		$(document).on("click", target+" .group_delete", function(){
+			var grp = $(this).parent().attr("data-grp");
+			var status = $(this).parent().attr("data-status");
+			
+			$(this).parent().remove();
+			
+			if(status != "new"){
+				var grparr = $(hiddel).val();
+				
+				if(grparr)
+					grparr = JSON.parse(grparr);
+				else
+					grparr = new Array();
+					
+				grparr.push(grp);
+				$(hiddel).val(JSON.stringify(grparr));
+			}
+			else{
+				listNewGrps(target, hidnew);
+			}
+			
+			
+		});
+	}
+	
+	function printPolicy(){
+		var policy = new Object();
+		var groups = $("#pol_group_container"+" > *").map(function(){
+				return $(this).attr("data-grp");
+			}).get();
+		
+		policy.write = $("#pol_write").val() == "Yes" ? true : false;
+		policy.groups = groups;
+		
+		$("#inppol").val(JSON.stringify(policy));
+
+	}
+  
+  </script>
   <body>
     <%- include("nav", {active: "none"}); %>
     <div class="container">
@@ -21,27 +103,53 @@
 				<textarea name="description"></textarea>
 			</div>
 			<hr/>
+			
+			<div>
+				<h4>Groups</h4>
+				<input type ="text" id="group_adder"/>
+				<button type="button" id="group_adder_btn">Add</button>
+				<br/><br/>
+				<fieldset>
+					<div id="group_container">
+						<% groups.forEach(function(name) { %>
+							<div data-status="existing" data-grp="<%= name %>"><%= name %><button type="button" class="group_delete">Delete</button></div>
+                            <% }); %>
+					</div>
+				</fieldset>
+			</div>
+			<input type="text" name="newgrps" id="inpnewgrps"/>
+			<input type="text" name="delgrps" id="inpdelgrps"/>
+			<hr/>
 
         </div>
         <div id="queue" class="tab-pane fade">
           <h3 style="font-size: 26px; margin-left: 20px;"><u><%= sensor %>:</u></h3>
           <hr>
           <div>
-				<h3>Write</h3>
-				<h4>Data type</h4>
-				<select name="dataType">
-					<option>None</option>
-					<option>Temperature</option>
+				<h3>Insert data</h3>
+				<h4>Allowed</h4>
+				<select name="write" id="pol_write">
+					<option>No</option>
+					<option>Yes</option>
 				</select>
 			</div>
 			<hr/>
 			<div>
-				<h3>Read</h3>
-				<h4>Data type</h4>
-				<select name="dataType">
-					<option>None</option>
-					<option>Temperature</option>
-				</select>
+				<h3>Read data</h3>
+				<div>
+				<h4>From groups</h4>
+				<input type ="text" id="pol_group_adder"/>
+				<button type="button" id="pol_group_adder_btn">Add</button>
+				<br/><br/>
+				<fieldset>
+					<div id="pol_group_container">
+
+					</div>
+				</fieldset>
+			</div>
+			
+			<input type="text" name="policy" id="inppol"/>
+				
 			</div>
 			<hr/>
         </div>
@@ -50,7 +158,7 @@
       </div>
 	  
 	  <div class="" style="text-align: right; margin-top: 20px;">
-           <td><button class="btn btn-sm btn-success" type="submit" name="activate" value="<%= sensor %>">Activate</button></td>
+           <td><button class="btn btn-sm btn-success" type="submit" onclick="printPolicy()" name="activate" value="<%= sensor %>"><%= (policy_string ? "Save" : "Activate") %></button></td>
   							  <td><button class="btn btn-sm btn-danger" type="submit" name="block" value="<%= sensor %>">Block</button></td>
 			    </div>
 	  
