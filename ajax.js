@@ -36,23 +36,29 @@ exports.sensorSubmit = function(chain, db, req, res) {
 				// res.end('{"response":"error"}');
 			// });
 			
-			sensorQuery(sensor, "test", "query", ["hans"],
-			function(result){ //completion handler
+			
+			
+			db.insertData(/*date*/new Date(), sensID, data);
+			
+			
+			
+			// sensorQuery(sensor, "test", "query", ["hans"],
+			// function(result){ //completion handler
 
-				db.insertData(/*date*/new Date(), sensID, data);
+				// db.insertData(/*date*/new Date(), sensID, data);
 
-				console.log(JSON.stringify(result));
-				//console.log("Invoke completed");
-				res.end('{"response":"success"}');
-			},
-			function(err){ //error handler
-				//console.log("Invoke failed");
-				console.log(JSON.stringify(err));
+				// console.log(JSON.stringify(result));
+				// //console.log("Invoke completed");
+				// res.end('{"response":"success"}');
+			// },
+			// function(err){ //error handler
+				// //console.log("Invoke failed");
+				// console.log(JSON.stringify(err));
 
-				//n�got resultat som ber sensor skicka om sin data...
+				// //n�got resultat som ber sensor skicka om sin data...
 
-				res.end('{"response":"error"}');
-			});
+				// res.end('{"response":"error"}');
+			// });
 		}
 		else{
 

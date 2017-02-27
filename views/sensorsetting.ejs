@@ -7,7 +7,7 @@
   
 	$(function(){
 	
-		setupGrpAdder("#group_adder_btn", "#group_adder", "#group_container", "#inpnewgrps", "#inpdelgrps");
+		setupGrpAdder("#group_adder_btn", "#group_adder", "#group_container", "#inpgrps");
 		
 		$("#pol_group_adder_btn").on("click", function(){
 			var newgrp = $("#pol_group_adder").val();
@@ -22,18 +22,25 @@
 			$(this).parent().remove();		
 		});
 		
-		
+		$("#settingform").on("submit", function(){
+			if($("#inpgrps").val().length > 0)
+				return true;
+			else{
+				alert("Sensors must be in at least one group!");
+				return false;
+				}
+		});
 	
 	});
 	
 	function listNewGrps(cont, hidinp){
-		var groups = $(cont+" > [data-status=new]").map(function(){
+		var groups = $(cont+" > *").map(function(){
 				return $(this).attr("data-grp");
 			}).get();
 			$(hidinp).val(groups.length > 0 ? JSON.stringify(groups):"");
 	}
 	
-	function setupGrpAdder(btn, inp, target, hidnew, hiddel){
+	function setupGrpAdder(btn, inp, target, hidinp){
 		$(btn).on("click", function(){
 			var newgrp = $(inp).val();
 			if(newgrp && $(target+" [data-grp="+newgrp+"]").length == 0){
@@ -42,31 +49,14 @@
 			else
 				alert("New groups cannot be blank or existing ones!");
 				
-			listNewGrps(target, hidnew);
+			listNewGrps(target, hidinp);
 		});
 		
 		$(document).on("click", target+" .group_delete", function(){
-			var grp = $(this).parent().attr("data-grp");
-			var status = $(this).parent().attr("data-status");
 			
 			$(this).parent().remove();
-			
-			if(status != "new"){
-				var grparr = $(hiddel).val();
-				
-				if(grparr)
-					grparr = JSON.parse(grparr);
-				else
-					grparr = new Array();
+			listNewGrps(target, hidinp);
 					
-				grparr.push(grp);
-				$(hiddel).val(JSON.stringify(grparr));
-			}
-			else{
-				listNewGrps(target, hidnew);
-			}
-			
-			
 		});
 	}
 	
@@ -80,14 +70,14 @@
 		policy.groups = groups;
 		
 		$("#inppol").val(JSON.stringify(policy));
-
+		
 	}
   
   </script>
   <body>
     <%- include("nav", {active: "none"}); %>
     <div class="container">
-	<form method="POST">
+	<form method="POST" id="settingform">
       <ul class="nav nav-tabs">
         <li class="active tabhead"><a data-toggle="tab" href="#active">Information</a></li>
         <li class="tabhead"><a data-toggle="tab" href="#queue">Policy</a></li>
@@ -100,7 +90,7 @@
 
 			<div>
 				<h4>Description</h4>
-				<textarea name="description"></textarea>
+				<textarea name="description"><%= description %></textarea>
 			</div>
 			<hr/>
 			
@@ -117,8 +107,7 @@
 					</div>
 				</fieldset>
 			</div>
-			<input type="text" name="newgrps" id="inpnewgrps"/>
-			<input type="text" name="delgrps" id="inpdelgrps"/>
+			<input type="text" name="grps" id="inpgrps" value="<%= JSON.stringify(groups) %>"/>
 			<hr/>
 
         </div>

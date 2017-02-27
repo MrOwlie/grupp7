@@ -102,12 +102,17 @@ function renderSensorHTML(req, res){
 app.get('/sensorSettings', function(req, res){
 	if(req.query.id.length > 0){
 		sensor.isEnrolled(chain, req.query.id, function(itis){
-			if(itis){
-				//check policies
-				res.render('sensorsetting', {sensor : req.query.id, policy_string: "something", groups: ["existing", "exists"]});
-			}
-			else
-				res.render('sensorsetting', {sensor : req.query.id, policy_string: false, groups: ["existing", "exists"]});
+			database.getSensor(req.query.id, function(doc){
+				
+				if(itis){
+					//check policies
+					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: "something", groups: doc.groups});
+				}
+				else
+					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: false, groups : doc.groups});
+				
+			});
+			
 		});
 	}
 });
@@ -115,13 +120,13 @@ app.get('/sensorSettings', function(req, res){
 app.post('/sensorSettings', function(req, res){
 	var ac = req.body.activate;
 	var blo = req.body.block;
-	//req.body.description = text string with description
-	//req.body.newgrps = JSON string of array with groups to be added in
-	//req.body.delgrps = JSON string of array with groups to be removed from
+	var desc = req.body.description;
+	var sgrps =  (req.body.grps.length > 0 ? JSON.parse(req.body.grps) : new Array());
 	//req.body.policy = JSON string of the entire policy
 	
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
+			var b = database.setSensorSettings(ac, desc, sgrps);
 			var a = database.setSensorFlag(ac, 2);
 	}
 	else if(blo){
