@@ -1,11 +1,11 @@
 //This file contains all the apps ajax functions
 
 exports.sensorSubmit = function(chain, db, req, res) {
-	
+
 	var sensID = req.body.ID;
 	var date = req.body.date;
 	var data = req.body.data;
-	
+
 
 	chain.getMember(sensID, function(err, sensor){
 		if(err){
@@ -35,15 +35,9 @@ exports.sensorSubmit = function(chain, db, req, res) {
 
 				// res.end('{"response":"error"}');
 			// });
-			
-			
-			
-			db.insertData(/*date*/new Date(), sensID, data);
-			
-			
-			
-			// sensorQuery(sensor, "test", "query", ["hans"],
-			// function(result){ //completion handler
+
+			sensorQuery(sensor, "temperature", "tempInsert", [],
+			function(result){ //completion handler
 
 				// db.insertData(/*date*/new Date(), sensID, data);
 

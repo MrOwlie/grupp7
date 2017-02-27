@@ -123,12 +123,12 @@ app.post('/sensorSettings', function(req, res){
 	var desc = req.body.description;
 	var sgrps =  (req.body.grps.length > 0 ? JSON.parse(req.body.grps) : new Array());
 	//req.body.policy = JSON string of the entire policy
-	
+
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
 			var b = database.setSensorSettings(ac, desc, sgrps);
 			var a = database.setSensorFlag(ac, 2);
-	}
+  }
 	else if(blo){
 		var b = database.setSensorFlag(blo, 3);
 	}
@@ -172,7 +172,7 @@ app.post('/ajax/setDescription', function(req, res){
 app.post('/ajax/setFlag', function(req, res){
 	if(parseInt(req.body.flag) == 2)
 		sensor.newSensor(chain, req.body.id, "temperature");
-	database.setSensorFlag(req.body.id, req.body.flag, function(){
+	  database.setSensorFlag(req.body.id, req.body.flag, function(){
 		res.end('{"response":"success"}');
 	});
 });
