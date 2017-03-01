@@ -52,7 +52,7 @@ exports.sensorSubmit = function(chain, db, req, res) {
 				// //n�got resultat som ber sensor skicka om sin data...
 
 				// res.end('{"response":"error"}');
-			// });
+			 });
 		}
 		else{
 
