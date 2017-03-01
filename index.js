@@ -231,10 +231,10 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-
+   
    database.getSystemKeyVal("deployed", function(docs){
 	  if(docs.length != 1 || docs[0].val != "true"){
-		  deploy(webAppAdmin, "temperature", "Init", [], "./chaincode");
+		  deploy(webAppAdmin, "temperature", "Init", [webAppAdmin.enrollment.cert], "./chaincode");
 		  database.setSystemKeyVal("deployed", "true");
 	  }
 	  else
