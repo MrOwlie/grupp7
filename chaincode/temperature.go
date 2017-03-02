@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	//"strconv"
-  "encoding/json"
+	"strings"
 
 	//"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -20,17 +20,17 @@ type TemperatureChaincode struct {
 //This function will be executed by the chaincode when it is first deployed.
 //I don't think we need any kind of initialization yet. Therefore we take 0 arguments and return nil, nil if that is the case.
 func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	adminCert, err := stub.GetCallerMetadata()
+	adminCert := args[0]
 	fmt.Println("This is the adminCert: " + adminCert)
-	if err != nil {
-		return nil, errors.New("Could not get caller metadata.")
-	}
+	//if err != nil {
+	//return nil, errors.New("Could not get caller metadata.")
+	//}
 	if len(adminCert) == 0 {
 		fmt.Println("This is the adminCert: " + adminCert)
 		return nil, errors.New("Invalid admin certificate, it was empty.")
 	}
-	stub.PutState("admin", adminCert)
-	stub.PutState(string(adminCert), []byte("{ insert: { allowed: true }, groups: ['temp', 'water'] }"))
+	stub.PutState("admin", []byte(adminCert))
+	stub.PutState(string(adminCert), []byte("{insert:true}{temp:true}"))
 
 	return nil, nil
 }
@@ -40,32 +40,38 @@ func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function s
 func (t *TemperatureChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 
 	//get adminCert
-	adminCert, err := stub.GetState("admin")
-
-	ok, err := t.isCaller(stub, adminCert)
+	callerCert := args[0]
+	adminCertRaw, err := stub.GetState("admin")
+	if err != nil {
+		return nil, errors.New("GetState('admin') returned an error, Invoke call aborted.")
+	}
+	adminCert := string(adminCertRaw)
+	if callerCert != adminCert {
+		return nil, errors.New("Caller is not admin. Aborting invoke call.")
+	}
 	if err != nil {
 		return nil, errors.New("Failed checking admin certificate.")
-	}
-	if !ok {
-		return nil, errors.New("The caller is not admin")
 	}
 	switch function {
 		//This case is executed when the recieved function is removePolicy
   case "removePolicy":
-		//The removePolicy function only takes one argument, certificate of the user as a string in arg[0].
-  	if len(args) != 1 {
+		//The removePolicy function only takes one argument, certificate of the user as a string in arg[1].
+  	if len(args) != 2 {
       return nil, errors.New("Wrong number of arguments for function " + function + ", expected 1 but recieved " + string(len(args)) + ".")
     }
-		fmt.Println("Deleting policy for user: " + args[0] + ".")
+		fmt.Println("Deleting policy for user: " + args[1] + ".")
 		//Delete the policy for user in argument
-    stub.PutState(args[0], nil)
+    stub.PutState(args[2], nil)
   case "addPolicy":
-		//addPolicy takes the certificate of the user as a string in arg[0] and the policy as string encoded JSON in arg[1].
-		fmt.Println("This is what arg[0] looks like: " + args[0])
+		if len(args) != 3 {
+			return nil, errors.New("Wrong number of arguments for function " + function + ", expected 1 but recieved " + string(len(args)) + ".")
+		}
+		//addPolicy takes the certificate of the user as a string in arg[1] and the policy as string encoded JSON in arg[2].
+		fmt.Println("This is what arg[0] looks like: " + args[1])
 		fmt.Println("Inserting new policy")
-    err = stub.PutState(args[0], []byte(args[1]))
+    err = stub.PutState(args[1], []byte(args[2]))
     if err != nil {
-      return nil, errors.New("Error occurred when trying to PutState(" + args[0] + ", " + args[1] + ").")
+      return nil, errors.New("Error occurred when trying to PutState(" + args[1] + ", " + args[2] + ").")
     }
   default:
     return nil, errors.New("Function: " + function + " was not found.")
@@ -76,52 +82,35 @@ func (t *TemperatureChaincode) Invoke(stub shim.ChaincodeStubInterface, function
 // Query callback representing the query of a chaincode
 func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
   //Check arguments
-  if len(args) != 0 {
+  if len(args) != 1 {
   	return nil, errors.New("Queries does not take any arguments. Recieved " + string(len(args)) + ".")
   }
-	callerCert, err := stub.GetCallerMetadata()
-	if err != nil {
-		return nil, errors.New("Could not get user certificate.")
-	}
+	callerCert := args[0]
 
 	//The JSON decoding is probably broken, what the fuck is an empty interface and how do I iterate over a string array with one?
-	encodedData, err := stub.GetState(string(callerCert))
-  var mappedValues interface{}
-  err = json.Unmarshal(encodedData, &mappedValues)
-
-	policy := mappedValues.(map[string]interface{})
+	policyRaw, err := stub.GetState(string(callerCert))
+	if err != nil {
+		return nil, errors.New("GetState('callerCert') returned an error, query call aborted.")
+	}
+	policy := string(policyRaw)
 
 
   switch function {
   case "tempFetch":
-		for k, v := range policy {
-			if k == "groups" {
-				for group := range v.([]string) {
-					if string(group) == "temp" {
-						return []byte("true"), nil
-					}
-				}
-				return []byte("false"), nil
-			}
+		if strings.Contains(policy, "{temp:true}") {
+			return []byte("false"), nil
 		}
 		return []byte("false"), nil
 
 	case "tempInsert":
-		permission := false
-		for k, v := range policy {
-			if k == "groups" && permission == true {
-				for group := range v.([]string) {
-					if string(group) == "temp" {
-						return []byte("true"), nil
-					}
-				}
-				return []byte("false"), nil
-			}
-			if k == "insertPermission" && v == true {
-				permission = true
-			}
+		if strings.Contains(policy, "{insert:true}") && strings.Contains(policy, "{temp:true}") {
+			return []byte("true"), nil
 		}
 		return []byte("false"), nil
+
+
+	case "policyFetch":
+		return policyRaw, nil
 
   default:
     return []byte("false"), errors.New("Function: " + function + " was not found.")

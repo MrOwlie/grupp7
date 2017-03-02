@@ -103,16 +103,25 @@ app.get('/sensorSettings', function(req, res){
 	if(req.query.id.length > 0){
 		sensor.isEnrolled(chain, req.query.id, function(itis){
 			database.getSensor(req.query.id, function(doc){
-				
+
 				if(itis){
 					//check policies
+          chain.getMember("WebAppAdmin", function(err, admin){
+            chain.getMember(req.query.id, function(err, sensor){
+              //This should add a policy to the ledger for the sensor if it is not yet enrolled.
+              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{insert:true}{temp:true}"]);
+              userQuery(sensor, "temperature", "policyFetch", [sensor.enrollment.cert]);
+            });
+          });
 					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: "something", groups: doc.groups});
 				}
-				else
+				else{
+
+
 					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: false, groups : doc.groups});
-				
+				}
 			});
-			
+
 		});
 	}
 });
@@ -231,7 +240,7 @@ chain.enroll("WebAppAdmin", "DJY27pEnl16d", function(err, webAppAdmin) {
    // Set this user as the chain's registrar which is authorized to register other users.
    console.log("Enrolled WebAppAdmin");
    chain.setRegistrar(webAppAdmin);
-   
+
    database.getSystemKeyVal("deployed", function(docs){
 	  if(docs.length != 1 || docs[0].val != "true"){
 		  deploy(webAppAdmin, "temperature", "Init", [webAppAdmin.enrollment.cert], "./chaincode");
@@ -305,6 +314,37 @@ function userInvoke(user, chaincode, func, ccargs){
 	});
 }
 
+function userQuery(user, chaincode, func, ccargs){
+	chain.getMember(user, function(err, member){
+		if(err)
+			return console.log("Could not find member " + user);
+
+		var queryRequest = {
+        // Name (hash) required for invoke
+        chaincodeID: chaincode,
+        // Function to trigger
+        fcn: func,
+        // Parameters for the invoke function
+        args: ccargs
+		};
+		console.log(ccargs);
+		var tx = member.query(queryRequest);
+		console.log(user+" started query");
+		 // Listen for the 'submitted' event
+		 tx.on('submitted', function(results) {
+			console.log("submitted query: %j",results);
+		 });
+		 // Listen for the 'complete' event.
+		 tx.on('complete', function(results) {
+			console.log("completed query: %j",results);
+      //Return results?
+		 });
+		 // Listen for the 'error' event.
+		 tx.on('error', function(err) {
+			console.log("error on query: %j",err);
+		 });
+	});
+}
 
 ///////////
 //Cleanup//
