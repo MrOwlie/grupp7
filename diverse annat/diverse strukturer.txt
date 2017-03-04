@@ -1,3 +1,3 @@
 
 //Policy structure RocksDB[userCert] points to a string containing the policies as substrings.
-RocksDB[string(userCert)] = []byte("{insert:true}{temp:true}")
+RocksDB[string(userCert)] = []byte("{tempInsert:true}{temp:true}")

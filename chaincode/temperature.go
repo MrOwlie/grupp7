@@ -82,9 +82,6 @@ func (t *TemperatureChaincode) Invoke(stub shim.ChaincodeStubInterface, function
 // Query callback representing the query of a chaincode
 func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
   //Check arguments
-  if len(args) != 1 {
-  	return nil, errors.New("Queries does not take any arguments. Recieved " + string(len(args)) + ".")
-  }
 	callerCert := args[0]
 
 	//The JSON decoding is probably broken, what the fuck is an empty interface and how do I iterate over a string array with one?
@@ -96,14 +93,16 @@ func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function 
 
 
   switch function {
-  case "tempFetch":
-		if strings.Contains(policy, "{temp:true}") {
+  case "fetch":
+		group := args[1]
+		if strings.Contains(policy, "{" + group + ":true}") {
 			return []byte("false"), nil
 		}
 		return []byte("false"), nil
 
-	case "tempInsert":
-		if strings.Contains(policy, "{insert:true}") && strings.Contains(policy, "{temp:true}") {
+	case "insert":
+		group := args[1]
+		if strings.Contains(policy, "{" + group + "Insert:true}") && strings.Contains(policy, "{" + group + ":true}") {
 			return []byte("true"), nil
 		}
 		return []byte("false"), nil
