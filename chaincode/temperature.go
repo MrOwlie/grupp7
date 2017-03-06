@@ -102,13 +102,13 @@ func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function 
 
 	case "insert":
 		group := args[1]
-		if strings.Contains(policy, "{" + group + "Insert:true}") && strings.Contains(policy, "{" + group + ":true}") {
+		if strings.Contains(policy, "{" + group + "Insert:true}") {
 			return []byte("true"), nil
 		}
 		return []byte("false"), nil
 
 
-	case "policyFetch":
+	case "policy":
 		return policyRaw, nil
 
   default:
