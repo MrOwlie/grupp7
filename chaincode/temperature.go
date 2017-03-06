@@ -35,7 +35,7 @@ func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function s
 		return nil, errors.New("Invalid admin certificate, it was empty.")
 	}
 	stub.PutState("admin", []byte(adminCert))
-	stub.PutState(string(adminCert), []byte("{Insert:true, Groups:['temp']}"))
+	stub.PutState(string(adminCert), []byte(`{"Insert":true, "Groups":["temp"]}`))
 
 	return nil, nil
 }
@@ -97,21 +97,24 @@ func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function 
 	var policy Policy
 	jsonErr := json.Unmarshal([]byte(policyRaw), &policy)
 	if jsonErr != nil {
-		return nil, errors.New("Unmarshaling of json string failed.")
+		return nil, jsonErr
+		fmt.Println("error decoding json")
 	}
+	fmt.Println("The string: " + string(policyRaw))
+	fmt.Println("DAFUQ: " )
 
 
   switch function {
-  case "fetch":
+  case "insert":
 		if policy.Insert == true {
 			return []byte{1}, nil
 		}
 		return []byte{0}, nil
 
-	case "insert":
+	case "fetch":
 		group := args[1]
-		for _, i := range policy.Groups {
-			if i == group {
+		for i := 0; i < len(policy.Groups); i++ {
+			if policy.Groups[i] == group {
 				return []byte{1}, nil
 			}
 		}

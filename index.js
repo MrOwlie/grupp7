@@ -109,13 +109,15 @@ app.get('/sensorSettings', function(req, res){
 
           chain.getMember("WebAppAdmin", function(err, admin){
             chain.getMember(req.query.id, function(err, sensor){
-              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{Insert:true, Groups:['temp']}"]);
-              var policy = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert, "temp"]);
-              var fetch = userQuery(sensor, "temperature", "fetch", [sensor.enrollment.cert]);
-              var insert = userQuery(sensor, "temperature", "insert", [sensor.enrollment.cert]);
-              console.log(bin2String(policy));
-              console.log(fetch);
-              console.log(insert);
+              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, '{"Insert":true, "Groups":["temp"]}']);
+              setTimeout(function(){
+                var policy = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert]); //this will return the policy
+                var fetch = userQuery(sensor, "temperature", "fetch", [sensor.enrollment.cert, 'asd']); //This will return 0
+                var insert = userQuery(sensor, "temperature", "insert", [sensor.enrollment.cert]); //this will return 1
+                console.log(bin2String(policy));
+                console.log(fetch);
+                console.log(insert);
+              }, 5000);
             });
           });
 					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: "something", groups: doc.groups});
