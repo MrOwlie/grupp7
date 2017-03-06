@@ -6,7 +6,8 @@ import (
 	"errors"
 	"fmt"
 	//"strconv"
-	"strings"
+	//"strings"
+	"encoding/json"
 
 	//"github.com/hyperledger/fabric/accesscontrol/impl"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -14,6 +15,10 @@ import (
 
 // TemperatureChaincode
 type TemperatureChaincode struct {
+}
+type Policy struct {
+	Insert bool
+	Groups []string
 }
 
 
@@ -30,7 +35,7 @@ func (t *TemperatureChaincode) Init(stub shim.ChaincodeStubInterface, function s
 		return nil, errors.New("Invalid admin certificate, it was empty.")
 	}
 	stub.PutState("admin", []byte(adminCert))
-	stub.PutState(string(adminCert), []byte("{insert:true}{temp:true}"))
+	stub.PutState(string(adminCert), []byte(`{"Insert":true, "Groups":["temp"]}`))
 
 	return nil, nil
 }
@@ -89,30 +94,39 @@ func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function 
 	if err != nil {
 		return nil, errors.New("GetState('callerCert') returned an error, query call aborted.")
 	}
-	policy := string(policyRaw)
+	var policy Policy
+	jsonErr := json.Unmarshal([]byte(policyRaw), &policy)
+	if jsonErr != nil {
+		return nil, jsonErr
+		fmt.Println("error decoding json")
+	}
+	fmt.Println("The string: " + string(policyRaw))
+	fmt.Println("DAFUQ: " )
 
 
   switch function {
-  case "fetch":
-		group := args[1]
-		if strings.Contains(policy, "{" + group + ":true}") {
-			return []byte("true"), nil
+  case "insert":
+		if policy.Insert == true {
+			return []byte{1}, nil
 		}
-		return []byte("false"), nil
+		return []byte{0}, nil
 
-	case "insert":
+	case "fetch":
 		group := args[1]
-		if strings.Contains(policy, "{" + group + "Insert:true}") {
-			return []byte("true"), nil
+		for i := 0; i < len(policy.Groups); i++ {
+			if policy.Groups[i] == group {
+				return []byte{1}, nil
+			}
 		}
-		return []byte("false"), nil
+
+		return []byte{0}, nil
 
 
 	case "policy":
 		return policyRaw, nil
 
   default:
-    return []byte("false"), errors.New("Function: " + function + " was not found.")
+    return nil, errors.New("Function: " + function + " was not found.")
   }
 
     return nil, nil
