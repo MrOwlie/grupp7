@@ -109,7 +109,13 @@ app.get('/sensorSettings', function(req, res){
 
           chain.getMember("WebAppAdmin", function(err, admin){
             chain.getMember(req.query.id, function(err, sensor){
-              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{tempInsert:true}{temp:true}"]);
+              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{Insert:true, Groups:['temp']}"]);
+              var policy = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert, "temp"]);
+              var fetch = userQuery(sensor, "temperature", "fetch", [sensor.enrollment.cert]);
+              var insert = userQuery(sensor, "temperature", "insert", [sensor.enrollment.cert]);
+              console.log(bin2String(policy));
+              console.log(fetch);
+              console.log(insert);
             });
           });
 					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: "something", groups: doc.groups});
@@ -129,11 +135,7 @@ app.post('/sensorSettings', function(req, res){
 	var blo = req.body.block;
 	var desc = req.body.description;
 	var sgrps =  (req.body.grps.length > 0 ? JSON.parse(req.body.grps) : new Array());
-  chain.getMember(ac, function(err, sensor){
-    var policyRaw = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert]);
-    var policy = bin2String(policyRaw);
-  });
-  console.log(policy)
+
 
 	//req.body.policy = JSON string of the entire policy
 
