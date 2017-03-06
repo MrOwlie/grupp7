@@ -104,14 +104,15 @@ app.get('/sensorSettings', function(req, res){
 		sensor.isEnrolled(chain, req.query.id, function(itis){
 			database.getSensor(req.query.id, function(doc){
 
+			var policy;
+			
 				if(itis){
-					//check policies
+					chain.getMember(req.query.id, function(err, sensor){
+						var policyRaw = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert]);
+						policy = JSON.parse(bin2String(policyRaw));
+					  });
 
-          chain.getMember("WebAppAdmin", function(err, admin){
-            chain.getMember(req.query.id, function(err, sensor){
-              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{tempInsert:true}{temp:true}"]);
-            });
-          });
+          
 					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: "something", groups: doc.groups});
 				}
 				else{
@@ -129,13 +130,17 @@ app.post('/sensorSettings', function(req, res){
 	var blo = req.body.block;
 	var desc = req.body.description;
 	var sgrps =  (req.body.grps.length > 0 ? JSON.parse(req.body.grps) : new Array());
-  chain.getMember(ac, function(err, sensor){
-    var policyRaw = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert]);
-    var policy = bin2String(policyRaw);
-  });
+	//req.body.policy = JSON string of the entire policy
+	
+	chain.getMember("WebAppAdmin", function(err, admin){
+            chain.getMember(req.query.id, function(err, sensor){
+              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{tempInsert:true}{temp:true}"]);
+            });
+          });
+  
   console.log(policy)
 
-	//req.body.policy = JSON string of the entire policy
+	
 
 	if(ac){
 			sensor.newSensor(chain, ac, "temperature");
