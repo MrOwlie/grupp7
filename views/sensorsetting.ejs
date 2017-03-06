@@ -8,6 +8,9 @@
 	$(function(){
 	
 		setupGrpAdder("#group_adder_btn", "#group_adder", "#group_container", "#inpgrps");
+		$(document).on("click", "#pol_group_container .group_delete", function(){		
+			$(this).parent().remove();			
+		});
 		
 		$("#pol_group_adder_btn").on("click", function(){
 			var newgrp = $("#pol_group_adder").val();
@@ -66,8 +69,8 @@
 				return $(this).attr("data-grp");
 			}).get();
 		
-		policy.write = $("#pol_write").val() == "Yes" ? true : false;
-		policy.groups = groups;
+		policy.Insert = $("#pol_write").val() == "Yes" ? true : false;
+		policy.Groups = groups;
 		
 		$("#inppol").val(JSON.stringify(policy));
 		
@@ -107,7 +110,7 @@
 					</div>
 				</fieldset>
 			</div>
-			<input type="text" name="grps" id="inpgrps" value="<%= JSON.stringify(groups) %>"/>
+			<input type="hidden" name="grps" id="inpgrps" value="<%= JSON.stringify(groups) %>"/>
 			<hr/>
 
         </div>
@@ -118,8 +121,8 @@
 				<h3>Insert data</h3>
 				<h4>Allowed</h4>
 				<select name="write" id="pol_write">
-					<option>No</option>
-					<option>Yes</option>
+					<option <%= policies.Insert ? "" : "selected" %>>No</option>
+					<option <%= policies.Insert ? "selected" : "" %>>Yes</option>
 				</select>
 			</div>
 			<hr/>
@@ -132,12 +135,14 @@
 				<br/><br/>
 				<fieldset>
 					<div id="pol_group_container">
-
+						<% policies.Groups.forEach(function(name) { %>
+							<div data-grp="<%= name %>"><%= name %><button type="button" class="group_delete">Delete</button></div>
+                            <% }); %>
 					</div>
 				</fieldset>
 			</div>
 			
-			<input type="text" name="policy" id="inppol"/>
+			<input type="hidden" name="policy" id="inppol"/>
 				
 			</div>
 			<hr/>
@@ -147,7 +152,7 @@
       </div>
 	  
 	  <div class="" style="text-align: right; margin-top: 20px;">
-           <td><button class="btn btn-sm btn-success" type="submit" onclick="printPolicy()" name="activate" value="<%= sensor %>"><%= (policy_string ? "Save" : "Activate") %></button></td>
+           <td><button class="btn btn-sm btn-success" type="submit" onclick="printPolicy()" name="activate" value="<%= sensor %>"><%= (policies ? "Save" : "Activate") %></button></td>
   							  <td><button class="btn btn-sm btn-danger" type="submit" name="block" value="<%= sensor %>">Block</button></td>
 			    </div>
 	  

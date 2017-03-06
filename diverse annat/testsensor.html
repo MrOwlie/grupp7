@@ -26,7 +26,21 @@
 		});
 		
 		$("#dataRequest").on("click", function(){
-		
+			$.ajax({
+                type: "POST",
+                url: "http://localhost:8080/retrieve/",
+                data: {ID: $("#sensorID").val(), data: $("#sensorData").val()},
+                dataType: "json",
+                success: function (data) {
+
+
+                    $("#requestResults").html(JSON.stringify(data.response));
+
+                },
+                error: function(e, status, error){
+                    alert(status + " - " + error);
+                }
+            });
 		});
 		
 	});

@@ -269,7 +269,7 @@ exports.getSensorData = function(group, /*tsfrom, tsto,*/ cb){
 		assert.equal(null, err);
 		console.log("Connected successfully to database");
 
-		var collection = db.collection('group');
+		var collection = db.collection(group);
 		// Insert some documents
 		collection.find({/*, 'timestamp' : {$gt : tsfrom, $lt : tsto}*/}).toArray(function(err, docs) {
 			assert.equal(err, null);

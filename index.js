@@ -1,5 +1,5 @@
-// library for handling sensors
-var sensor = require('./sensor');
+// library for handling chaincode operations
+var ccHandler = require('./ccHandler');
 
 //BEGIN--System-libraries-initialization--
 var express = require('express');
@@ -38,8 +38,107 @@ startupHyperledger();
 
 app.post('/submit', function(req, res){
 	res.header("Access-Control-Allow-Origin", "*");
-	AJAX.sensorSubmit(chain, database, req, res);
+	sensorSubmit(req, res);
 });
+
+function sensorSubmit(req, res) {
+
+	var sensID = req.body.ID;
+	var date = req.body.date;
+	var data = req.body.data;
+
+
+	chain.getMember(sensID, function(err, sensor){
+		if(err){
+			console.log("Error retreiving sensor at sensor submit AJAX");
+			res.end('{"response":"error"}');
+		}
+
+		if(sensor.isRegistered() && sensor.isEnrolled()){
+
+			ccHandler.userQuery(sensor, "temperature", "insert", [sensor.enrollment.cert],
+			function(result){ //completion handler
+				var a = result.result.readInt8(0);
+				if(a == 1){
+					database.insertData(new Date(), sensID, data);
+					res.end('{"response":"success"}');
+				}
+				else
+					res.end('{"response":"error"}');	
+			 },
+			 function(err){
+				res.end('{"response":"error"}');
+			 });
+		}
+		else{
+
+			database.sensorExists(sensID, function(itdoes){
+				if(!itdoes){
+					database.insertSensor(sensID, 1);
+					res.end('{"response":"placed in queue"}');
+				}
+				else
+					res.end('{"response":"already in queue"}');
+			});
+
+		}
+
+	});
+}
+
+app.post('/retrieve', function(req, res){
+	res.header("Access-Control-Allow-Origin", "*");
+	dataRequest(req, res);
+});
+
+function dataRequest(req, res) {
+	
+	var sensID = req.body.ID;
+	var group = req.body.data;
+
+	chain.getMember(sensID, function(err, sensor){
+		if(err){
+			console.log("Error retreiving sensor at sensor submit AJAX");
+			res.end('{"response":"error"}');
+		}
+
+		if(sensor.isRegistered() && sensor.isEnrolled()){
+
+			ccHandler.userQuery(sensor, "temperature", "fetch", [sensor.enrollment.cert, group],
+			function(result){ //completion handler
+				var a = result.result.readInt8(0);
+				if(a == 1){
+					database.getSensorData(group, function(thedata){
+						res.end('{"response":'+JSON.stringify(thedata)+'}');
+					});
+				}
+				else
+					res.end('{"response":"error"}');	
+			 },
+			 function(err){
+				res.end('{"response":"error"}');
+			 });
+		}
+		else{
+
+			database.sensorExists(sensID, function(itdoes){
+				if(!itdoes){
+					database.insertSensor(sensID, 1);
+					res.end('{"response":"placed in queue"}');
+				}
+				else
+					res.end('{"response":"already in queue"}');
+			});
+
+		}
+
+	});
+}
+
+
+
+
+
 //BEGIN--/(index)--------
 app.get('/', function(req, res){
 	res.render('home');
@@ -54,7 +153,7 @@ app.post('/sensors', function(req, res){
 	var blo = req.body.block;
 
 	if(ac){
-		sensor.isEnrolled(chain, ac, function(result){
+		ccHandler.isEnrolled(ac, function(result){
 			if(result){
 			//sensor.newSensor(chain, ac, "temperature");
 			var a = database.setSensorFlag(ac, 2);
@@ -101,15 +200,20 @@ function renderSensorHTML(req, res){
 //BEGIN--/sensorSettings--------
 app.get('/sensorSettings', function(req, res){
 	if(req.query.id.length > 0){
-		sensor.isEnrolled(chain, req.query.id, function(itis){
+		ccHandler.isEnrolled(req.query.id, function(itis){
 			database.getSensor(req.query.id, function(doc){
 			
 				if(itis){
 					chain.getMember(req.query.id, function(err, sensor){
-						var policyRaw = userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert]);
-						var policy = JSON.parse(bin2String(policyRaw));
+						ccHandler.userQuery(sensor, "temperature", "policy", [sensor.enrollment.cert], function(results){
+							var policy = JSON.parse(bin2String(results.result));
+							res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policies: policy, groups: doc.groups});
+						}, function(err){
+							return;
+						});
 						
-						res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policies: policy, groups: doc.groups});
+						
+						
 					  });
 
           // chain.getMember("WebAppAdmin", function(err, admin){
@@ -128,7 +232,7 @@ app.get('/sensorSettings', function(req, res){
 				}
 				else{
 
-					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policy_string: false, groups : doc.groups});
+					res.render('sensorsetting', {sensor : req.query.id, description : doc.desc, policies: false, groups : doc.groups});
 				}
 			});
 
@@ -143,26 +247,25 @@ app.post('/sensorSettings', function(req, res){
 	var sgrps =  (req.body.grps.length > 0 ? JSON.parse(req.body.grps) : new Array());
 	var policy = req.body.policy
 	
-	chain.getMember("WebAppAdmin", function(err, admin){
-            chain.getMember(req.query.id, function(err, sensor){
-              userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, "{tempInsert:true}{temp:true}"]);
-            });
-          });
-  
-  console.log(policy)
-
-
-	//req.body.policy = JSON string of the entire policy
 
 	if(ac){
-			sensor.newSensor(chain, ac, "temperature");
-			var b = database.setSensorSettings(ac, desc, sgrps);
-			var a = database.setSensorFlag(ac, 2);
+			ccHandler.upsertSensor(ac, "temperature", function(sensor){
+				chain.getMember("WebAppAdmin", function(err, admin){
+					  ccHandler.userInvoke(admin, "temperature", "addPolicy", [admin.enrollment.cert, sensor.enrollment.cert, policy], function(results){
+						  res.redirect('sensors');
+					  }, function(err){
+						  return;
+					  });
+				});
+				var b = database.setSensorSettings(ac, desc, sgrps);
+				var a = database.setSensorFlag(ac, 2);
+			});
+			
   }
 	else if(blo){
 		var b = database.setSensorFlag(blo, 3);
+		res.redirect('sensors');
 	}
-	res.redirect('sensors');
 });
 //END--/sensorSettings--------
 
@@ -176,35 +279,10 @@ app.get('/addSensor', function(req, res){
   res.render('addsensor');
 });
 
-app.get('/new', function(req, res){
-	res.send('new sensor');
-	sensor.newSensor(chain, "test", "temperature");
-});
-
 app.get('/test', function(req, res){
 	database.insertSensor("aaaa", "1");
 	database.setSensorDescription("aaaa", "hej du din fis");
 	//userInvoke("test", "auth", "increment", [])
-});
-
-app.post('/ajax/getSensors', function(req, res){
-	database.getSensors(function(docs){
-		res.end(JSON.stringify(docs));
-	});
-});
-
-app.post('/ajax/setDescription', function(req, res){
-	database.setSensorDescription(req.body.id, req.body.desc, function(){
-		res.end('{"response":"success"}');
-	});
-});
-
-app.post('/ajax/setFlag', function(req, res){
-	if(parseInt(req.body.flag) == 2)
-		sensor.newSensor(chain, req.body.id, "temperature");
-	  database.setSensorFlag(req.body.id, req.body.flag, function(){
-		res.end('{"response":"success"}');
-	});
 });
 
 app.listen(8080, function(){
@@ -248,6 +326,7 @@ if (mode === 'dev') {
 
 
 chain.setInvokeWaitTime(10);
+ccHandler.setChain(chain);
 
 
  // Enroll "WebAppAdmin" which is already registered because it is
@@ -304,68 +383,7 @@ function deploy(user, chaincode, func, depargs, codepath) {
 
 }
 
-function userInvoke(user, chaincode, func, ccargs){
-	chain.getMember(user, function(err, member){
-		if(err)
-			return console.log("Could not find member " + user);
 
-		var invokeRequest = {
-        // Name (hash) required for invoke
-        chaincodeID: chaincode,
-        // Function to trigger
-        fcn: func,
-        // Parameters for the invoke function
-        args: ccargs
-		};
-		console.log(ccargs);
-		var tx = member.invoke(invokeRequest);
-		console.log(user+" started invoke");
-		 // Listen for the 'submitted' event
-		 tx.on('submitted', function(results) {
-			console.log("submitted invoke: %j",results);
-		 });
-		 // Listen for the 'complete' event.
-		 tx.on('complete', function(results) {
-			console.log("completed invoke: %j",results);
-		 });
-		 // Listen for the 'error' event.
-		 tx.on('error', function(err) {
-			console.log("error on invoke: %j",err);
-		 });
-	});
-}
-
-function userQuery(user, chaincode, func, ccargs){
-	chain.getMember(user, function(err, member){
-		if(err)
-			return console.log("Could not find member " + user);
-
-		var queryRequest = {
-        // Name (hash) required for invoke
-        chaincodeID: chaincode,
-        // Function to trigger
-        fcn: func,
-        // Parameters for the invoke function
-        args: ccargs
-		};
-		console.log(ccargs);
-		var tx = member.query(queryRequest);
-		console.log(user+" started query");
-		 // Listen for the 'submitted' event
-		 tx.on('submitted', function(results) {
-			console.log("submitted query: %j",results);
-		 });
-		 // Listen for the 'complete' event.
-		 tx.on('complete', function(results) {
-			console.log("completed query: %j",results);
-      //Return results?
-		 });
-		 // Listen for the 'error' event.
-		 tx.on('error', function(err) {
-			console.log("error on query: %j",err);
-		 });
-	});
-}
 
 function string2Bin(str) {
   var result = [];
