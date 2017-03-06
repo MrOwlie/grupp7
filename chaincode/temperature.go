@@ -96,7 +96,7 @@ func (t *TemperatureChaincode) Query(stub shim.ChaincodeStubInterface, function 
   case "fetch":
 		group := args[1]
 		if strings.Contains(policy, "{" + group + ":true}") {
-			return []byte("false"), nil
+			return []byte("true"), nil
 		}
 		return []byte("false"), nil
 
