@@ -19,7 +19,6 @@ app.use(express.static(__dirname + '/public'));
 var ejs = require('ejs')
 var hfc = require('hfc');
 var chain;
-var AJAX = require('./ajax');
 
 var bson = require('bson')
 
