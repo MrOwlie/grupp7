@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-  
+
   <%- include("head", {title: "Sensors"}); %>
-  
+
   <script type="text/javascript">
-  
+
 	$(function(){
-	
+
 		setupGrpAdder("#group_adder_btn", "#group_adder", "#group_container", "#inpgrps");
-		$(document).on("click", "#pol_group_container .group_delete", function(){		
-			$(this).parent().remove();			
+		$(document).on("click", "#pol_group_container .group_delete", function(){
+			$(this).parent().remove();
 		});
-		
+
 		$("#pol_group_adder_btn").on("click", function(){
 			var newgrp = $("#pol_group_adder").val();
 			if(newgrp && $("#pol_group_container"+" [data-grp="+newgrp+"]").length == 0){
@@ -20,11 +20,11 @@
 			else
 				alert("New groups cannot be blank or existing ones!");
 		});
-		
-		$(document).on("click", ".pol_group_delete", function(){			
-			$(this).parent().remove();		
+
+		$(document).on("click", ".pol_group_delete", function(){
+			$(this).parent().remove();
 		});
-		
+
 		$("#settingform").on("submit", function(){
 			if($("#inpgrps").val().length > 0)
 				return true;
@@ -33,16 +33,16 @@
 				return false;
 				}
 		});
-	
+
 	});
-	
+
 	function listNewGrps(cont, hidinp){
 		var groups = $(cont+" > *").map(function(){
 				return $(this).attr("data-grp");
 			}).get();
 			$(hidinp).val(groups.length > 0 ? JSON.stringify(groups):"");
 	}
-	
+
 	function setupGrpAdder(btn, inp, target, hidinp){
 		$(btn).on("click", function(){
 			var newgrp = $(inp).val();
@@ -51,31 +51,31 @@
 			}
 			else
 				alert("New groups cannot be blank or existing ones!");
-				
+
 			listNewGrps(target, hidinp);
 		});
-		
+
 		$(document).on("click", target+" .group_delete", function(){
-			
+
 			$(this).parent().remove();
 			listNewGrps(target, hidinp);
-					
+
 		});
 	}
-	
+
 	function printPolicy(){
 		var policy = new Object();
 		var groups = $("#pol_group_container"+" > *").map(function(){
 				return $(this).attr("data-grp");
 			}).get();
-		
+
 		policy.Insert = $("#pol_write").val() == "Yes" ? true : false;
 		policy.Groups = groups;
-		
+
 		$("#inppol").val(JSON.stringify(policy));
-		
+
 	}
-  
+
   </script>
   <body>
     <%- include("nav", {active: "none"}); %>
@@ -96,7 +96,7 @@
 				<textarea name="description"><%= description %></textarea>
 			</div>
 			<hr/>
-			
+
 			<div>
 				<h4>Groups</h4>
 				<input type ="text" id="group_adder"/>
@@ -135,31 +135,30 @@
 				<br/><br/>
 				<fieldset>
 					<div id="pol_group_container">
-						<% policies.Groups.forEach(function(name) { %>
+						<% policy.Groups.forEach(function(name) { %>
 							<div data-grp="<%= name %>"><%= name %><button type="button" class="group_delete">Delete</button></div>
                             <% }); %>
 					</div>
 				</fieldset>
 			</div>
-			
+
 			<input type="hidden" name="policy" id="inppol"/>
-				
+
 			</div>
 			<hr/>
         </div>
-        
+
 
       </div>
-	  
+
 	  <div class="" style="text-align: right; margin-top: 20px;">
            <td><button class="btn btn-sm btn-success" type="submit" onclick="printPolicy()" name="activate" value="<%= sensor %>"><%= (policies ? "Save" : "Activate") %></button></td>
   							  <td><button class="btn btn-sm btn-danger" type="submit" name="block" value="<%= sensor %>">Block</button></td>
 			    </div>
-	  
+
 	</form>
     </div><!-- /container -->
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
-
