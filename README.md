@@ -74,5 +74,18 @@ Example files on chaincodes using the current libraries and commands available t
 
 A dummy sensor used to test the functionality of the system. Simply fires AJAX calls with JQuery towards the webapp.
 
+* chancode/policyKeeper.go
+
+This file contains the source code for the chaincode used by our system. The function Init() will be executed when the chaincode is first deployed. It takes one argument and that is the WebAppAdmin certificate. The function Invoke() is called when someone is trying to perform a transaction to change the state. It's inner functions are "removePolicy" and "addPolicy". The function Query() is called when someone is trying to query the state. It's inner functions are "insert", "fetch" and "policy".
+
+* public
+
+This folder is where all the public content of the webapp is stored such as js scripts, css code, images and so on. It is only by being placed in this folder that they can be retrieved by browsers.
+
+* views
+
+This folder contains all the .ejs files which are scripted html files basically.
+
+
 
 
