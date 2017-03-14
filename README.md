@@ -3,6 +3,7 @@ This project has been constructed and tested primarily on Windows machines, if a
 
  * Install python v2.7
  * Install node.js v6.10.0 LTS
+ 
  Newer versions were not compatible with hfc, if newer versions of hfc are released one could try newer versions of node.js as well.
  * Install Docker
  If you plan to run on windows, windows 10 is required to run docker due to the presence of hyper-v.
