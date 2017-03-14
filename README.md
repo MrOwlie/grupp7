@@ -5,11 +5,11 @@
  * Install Kitematic, you can do this by right-clicking the Docker tray icon, follow instructions.
  * clone github.com/mrowlie/grupp7.git
  * open powershell
- * cd <Path>/grupp7/"diverse annat"		//Go to the folder "diverse annat"
+ * cd path to cloned git folder/grupp7/"diverse annat"		//Go to the folder "diverse annat"
  * docker build -t webapp .		//Don't forget the dot. This builds the webapp container
  * docker-compose down		//Just in case something is already running for whatever reason
  * docker-compose up		//This should start all the required docker containers
- * Open C:/Users/\textless username\textgreater /mytest, copy the git repository to this folder.
+ * Open C:/Users/USER/mytest, copy the git repository to this folder.
  * Start Kitematic by right-clicking the Docker tray icon.
  * There should be four containers running (green icons).
  * Click on webapp and click "EXEC" button above the log.
