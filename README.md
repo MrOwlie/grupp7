@@ -1,3 +1,18 @@
+# Modules and dependencies versions used
+* Python v2.7
+* Node.JS v6.10.0 LTS
+* Docker v1.13.1
+* hfc v0.6.5
+* express v4.14.0
+* ejs v2.5.5
+* MongoDB docker image v3.4
+* MongoDB driver v2.2.24
+* bson 1.0.4
+* Fabric starter kit v0.6 (Docker images of Peer and MemberServices)
+* Jquery v3.1.1
+* Bootstrap v3.7.7
+
+
 # Run the project
 This project has been constructed and tested primarily on Windows machines, if another os is preferred, some changes to the following instructions may occur.
 
