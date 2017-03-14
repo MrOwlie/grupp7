@@ -56,8 +56,23 @@ This project has been constructed and tested primarily on Windows machines, if a
 
 # System breakdown
 
-* docker-compose.yml
+* "diverse annat"/docker-compose.yml
 
 This file contains info to docker on which containers to start, which options they should have and how they are linked.
 Here one can change the variables in peer to change ports, debugging levels, security and so on.
 Most importantly is the options for webapp. The port to which webapp is accessed can be changed under "ports" with the format "internal port"/"external port". One can also change the address to the database container or to the fabric containers. If one wish to run a different chaincode two changes here must be made, CORE_CHAINCODE_ID_NAME is set to the chaincode name and the command parameter must have the url to the chaincode in order to start it up. Under the parameter volumes is where you set which folder the project lies in, this shares that folder into the webapp container so the node.js server can be started.
+
+* "diverse annat"/Dockerfile
+
+This file contains instructions on how docker should build the container webapp. It is based on the hyperledger/fabric-peer image to get the required golang sources to compile chaincodes. Later it installs all the required node.js modules since they lay inside the container and not the project folder. If one wants to change/add/remove modules, this is where it is done. Just remember that the webaspp image must be rebuilt for changes to come into affect.
+
+* "diverse annat"/go
+
+Example files on chaincodes using the current libraries and commands available to the current version of peer. This is the biggest source of inspiration on how to program chaincode.
+
+* "diverse annat"/testsensor.html
+
+A dummy sensor used to test the functionality of the system. Simply fires AJAX calls with JQuery towards the webapp.
+
+
+
