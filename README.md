@@ -5,7 +5,7 @@
  * Install Kitematic, you can do this by right-clicking the Docker tray icon, follow instructions.
  * clone github.com/mrowlie/grupp7.git
  * open powershell
- * cd \textless Path\textgreater /grupp7/"diverse annat"		//Go to the folder "diverse annat"
+ * cd <Path>/grupp7/"diverse annat"		//Go to the folder "diverse annat"
  * docker build -t webapp .		//Don't forget the dot. This builds the webapp container
  * docker-compose down		//Just in case something is already running for whatever reason
  * docker-compose up		//This should start all the required docker containers
